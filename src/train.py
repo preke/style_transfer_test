@@ -5,7 +5,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchtext.data as data
 import torchtext.datasets as datasets
-import RGL
 
 import codecs
 from nltk.corpus import sentiwordnet as swn
