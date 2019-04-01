@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 best_results = 0
 
 def train_S2S(train_iter, dev_iter, train_data, model, args):
-    save_dir = "RGLModel/Newdata/"
+    save_dir = "../model/"
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
 
@@ -96,7 +96,7 @@ def eval_S2S(dev_iter, model):
     return avg_loss
 
 def show_reconstruct_results_S2S(dev_iter, model, args, cnt, avg_loss):
-    writer = open('s2s_logs_'+str(cnt) + '__' + str(float(avg_loss)) + '_.txt', 'w')
+    writer = open('res/s2s_logs_'+str(cnt) + '__' + str(float(avg_loss)) + '_.txt', 'w')
     cnt_batch = 0
     for batch in dev_iter:
         sample  = batch.text[0]
