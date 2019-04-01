@@ -102,7 +102,7 @@ args.pretrained_weight = get_pretrained_word_embed(small_glove_path, args, text_
 
 
 
-Build s2s model and train
+# Build s2s model and train
 s2s_model = Seq2Seq(src_nword=args.vocab_size, 
                     trg_nword=args.vocab_size, 
                     num_layer=2, 
