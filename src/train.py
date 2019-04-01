@@ -41,7 +41,6 @@ def train_S2S(train_iter, dev_iter, train_data, model, args):
     optimizer        = optim.Adam(model.parameters(), lr=args.lr)
     loss_reconstruct = nn.NLLLoss()
     n_epoch          = args.num_epoch
-    lamda            = args.lamda
     len_iter         = int(len(train_data)/args.batch_size) + 1
     cnt_epoch = 0
     cnt_batch = 0
@@ -51,8 +50,6 @@ def train_S2S(train_iter, dev_iter, train_data, model, args):
             model.train()
             sample  = batch.text[0]
             length  = batch.text[1]
-            p       = float(cnt_batch + epoch * len_iter) / n_epoch / len_iter
-            alpha   = 2. / (1. + np.exp(-10 * p)) - 1
             feature = Variable(sample)
 
             reconstruct_out = model(feature[:, :-1], [i-1 for i in length.tolist()], feature[:, :-1])
