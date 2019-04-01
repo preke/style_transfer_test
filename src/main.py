@@ -23,8 +23,9 @@ logger = logging.getLogger(__name__)
 # self define
 from utils import preprocess_write, get_pretrained_word_embed, preprocess_pos_neg
 from dataload import load_data, load_pos_neg_data
-from train import eval, trainS2S
-from model import 
+from model import Seq2Seq
+from train import eval_S2S, train_S2S, show_reconstruct_results_S2S
+
 
 # paths
 TRAIN_PATH     = '../data/train.ft.txt'

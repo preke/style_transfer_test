@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 
 best_results = 0
 
-def trainS2S(train_iter, dev_iter, train_data, model, args):
+def train_S2S(train_iter, dev_iter, train_data, model, args):
     save_dir = "RGLModel/Newdata/"
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
