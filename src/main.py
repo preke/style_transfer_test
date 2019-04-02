@@ -82,6 +82,9 @@ args.bidirectional     = True
 args.anneal_function   = 'logistic'
 args.k                 = 0.0025
 args.x0                = 2500
+args.print_every       = 50
+
+
 # Preprocess
 if not os.path.exists(TEST_PRE_PATH):
     logger.info('Preprocessing begin...')
