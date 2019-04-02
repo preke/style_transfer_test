@@ -177,14 +177,14 @@ def kl_anneal_function(anneal_function, step, k, x0):
 
 def loss_fn(logp, target, length, mean, logv, anneal_function, step, k, x0, pad_idx):
     # NLL       = torch.nn.NLLLoss(size_average=False, ignore_index=datasets['train'].pad_idx)
-    NLL = torch.nn.NLLLoss(size_average = False)
+    NLL = torch.nn.NLLLoss(size_average = False, ignore_index=pad_idx)
     # cut-off unnecessary padding from target, and flatten
     # print(torch.max(length).data[0])
     target = target[:, :torch.max(length).data[0]].contiguous().view(-1)
     logp = logp.view(-1, logp.size(2))
     # Negative Log Likelihood
-    print(logp.size())
-    print(target.size())
+    # print(logp.size())
+    # print(target.size())
     NLL_loss = NLL(logp, target)
 
     # KL Divergence
