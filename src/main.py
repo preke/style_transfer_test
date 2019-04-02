@@ -156,7 +156,8 @@ vae_model = SentenceVAE(
     embedding_dropout   = args.embedding_dropout,
     latent_size         = args.latent_size,
     num_layers          = args.num_layers,
-    bidirectional       = args.bidirectional)
+    bidirectional       = args.bidirectional,
+    pre_embedding       = args.pretrained_weight)
 
 vae_model = vae_model.cuda()
 if args.snapshot is not None:
