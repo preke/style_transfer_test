@@ -116,9 +116,9 @@ def show_reconstruct_results_S2S(dev_iter, model, args, cnt, avg_loss):
 
 
 
-def eval_vae(model, eval_iter, args, step):
+def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
     model.eval()
-    writer = open('res/vae_logs_'+str(step) + '_.txt', 'w')
+    writer = open('res/vae_epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.txt', 'w')
     for batch in eval_iter:
         sample     = batch.text[0]
         length     = batch.text[1]
@@ -155,6 +155,7 @@ def train_vae(train_iter, eval_iter, model, args):
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     tensor    = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.Tensor
     step = 0
+    cur_epoch = 0
     for epoch in range(args.num_epoch):
         model.train()
         tracker = defaultdict(tensor)
@@ -186,9 +187,10 @@ def train_vae(train_iter, eval_iter, model, args):
                 print("Train: Batch %04d, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f"
                 %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
             if step % 2000 == 0:
-                eval_vae(model, eval_iter, args, step)
+                eval_vae(model, eval_iter, args, step, cur_epoch, iteration)
                 model.train()
             iteration += 1
+        cur_epoch += 1
 
 
 def kl_anneal_function(anneal_function, step, k, x0):
