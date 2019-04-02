@@ -126,7 +126,7 @@ def eval_vae(dev_iter, model):
     #     tracker['gen_sents'] += idx2word(logp.data, i2w=datasets['train'].get_i2w(), pad_idx=datasets['train'].pad_idx)
 
 
-def train_vae():
+def train_vae(train_iter, model, args):
     save_dir = "../model/"
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)

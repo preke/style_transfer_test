@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 # self define
 from utils import preprocess_write, get_pretrained_word_embed, preprocess_pos_neg
 from dataload import load_data, load_pos_neg_data
-from model import Seq2Seq
+from model import Seq2Seq, SentenceVAE
 from train import eval_S2S, train_S2S, show_reconstruct_results_S2S
 
 
@@ -162,8 +162,14 @@ vae_model = vae_model.cuda()
 if args.snapshot is not None:
     logger.info('Load model from' + args.snapshot)
     vae_model.load_state_dict(torch.load(args.snapshot))
-
-
+else:
+    logger.info('Train model begin...')
+    try:
+        train_S2S(train_iter=train_iter, dev_iter=dev_iter, train_data=train_data, model=s2s_model, args=args)
+    except KeyboardInterrupt:
+        print(traceback.print_exc())
+        print('\n' + '-' * 89)
+        print('Exiting from training early')
 
 
 
