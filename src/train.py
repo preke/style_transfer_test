@@ -116,7 +116,7 @@ def show_reconstruct_results_S2S(dev_iter, model, args, cnt, avg_loss):
 
 
 
-def eval_vae(eval_iter, model, args, step):
+def eval_vae(model, eval_iter, args, step):
     model.eval()
     writer = open('res/vae_logs_'+str(step) + '_.txt', 'w')
     for batch in eval_iter:
