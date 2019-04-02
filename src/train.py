@@ -139,16 +139,16 @@ def train_vae(train_iter, model, args):
     for epoch in range(args.num_epoch):
         model.train()
         tracker = defaultdict(tensor)
-        for batch in train_iter:
-            iteration = 0
+        iteration = 0
+        for batch in train_iter:    
+            
             # Forward pass
-
             sample     = batch.text[0]
             length     = batch.text[1]
             batch_size = len(sample)
             feature    = Variable(sample)
             target     = feature[:, :-1]
-            logp, mean, logv, z = model(feature, length)
+            logp, mean, logv, z = model(feature, [i-1 for i in length.tolist()])
             
             # loss calculation
             NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
@@ -164,6 +164,7 @@ def train_vae(train_iter, model, args):
             if iteration % args.print_every == 0:
                 print("Train: Batch %04d, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f"
                 %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
+            iteration += 1
 
 
 def kl_anneal_function(anneal_function, step, k, x0):
