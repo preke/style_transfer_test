@@ -133,7 +133,7 @@ def train_vae(train_iter, model, args):
 
     # NLL       = torch.nn.NLLLoss(size_average=False, ignore_index=datasets['train'].pad_idx)
     NLL       = torch.nn.NLLLoss(size_average=False)
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     tensor    = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.Tensor
     for epoch in range(n_epoch):
         model.train()
