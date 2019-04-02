@@ -165,7 +165,7 @@ if args.snapshot is not None:
 else:
     logger.info('Train model begin...')
     try:
-        train_S2S(train_iter=train_iter, dev_iter=dev_iter, train_data=train_data, model=s2s_model, args=args)
+        train_vae(train_iter=train_iter, model=vae_model, args=args)
     except KeyboardInterrupt:
         print(traceback.print_exc())
         print('\n' + '-' * 89)
