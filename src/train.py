@@ -187,7 +187,7 @@ def train_vae(train_iter, eval_iter, model, args):
                 %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
             if step % 200 == 0:
                 eval_vae(model, eval_iter, args, step)
-
+                model.train()
             iteration += 1
 
 
