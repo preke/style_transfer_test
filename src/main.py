@@ -35,7 +35,7 @@ POS_TEST_PATH  = '../data/test.pos'
 NEG_TEST_PATH  = '../data/test.neg'
 POS_TRAIN_PATH = '../data/train.pos'
 NEG_TRAIN_PATH = '../data/train.neg'
-GLOVE_PATH     = '../data/glove.42B.300d.txt'
+GLOVE_PATH     = '../data/glove.6B.300d.txt'
 
 small_pos_path   = '../data/amazon_small.pos'
 small_neg_path   = '../data/amazon_small.neg'
