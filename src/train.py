@@ -163,9 +163,9 @@ def train_vae(train_iter, model, args):
             step += 1
 
             tracker['ELBO'] = torch.cat((tracker['ELBO'], loss.data.unsqueeze(0)))
-            if iteration % args.print_every == 0 or iteration+1 == len(data_loader):
-                print("Train: Batch %04d/%i, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f"
-                %(iteration, len(data_loader)-1, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
+            if iteration % args.print_every == 0:
+                print("Train: Batch %04d, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f"
+                %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
 
 
 
