@@ -116,19 +116,39 @@ def show_reconstruct_results_S2S(dev_iter, model, args, cnt, avg_loss):
 
 
 
-def eval_vae(dev_iter, model):
+def eval_vae(eval_iter, model, args, step):
     model.eval()
-    # if 'target_sents' not in tracker:
-    #     tracker['target_sents'] = list()
-    #     tracker['target_sents'] += idx2word(batch['target'].data, i2w=datasets['train'].get_i2w(), pad_idx=datasets['train'].pad_idx)
-    #     tracker['z'] = torch.cat((tracker['z'], z.data), dim=0)
-    #     logp = torch.argmax(logp, dim=2)
-    #     if 'gen_sents' not in tracker:
-    #         tracker['gen_sents'] = list()
-    #     tracker['gen_sents'] += idx2word(logp.data, i2w=datasets['train'].get_i2w(), pad_idx=datasets['train'].pad_idx)
+    writer = open('res/vae_logs_'+str(step) + '_.txt', 'w')
+    for batch in eval_iter:
+        sample     = batch.text[0]
+        length     = batch.text[1]
+        length     = torch.add(length, -1)
+        batch_size = len(sample)
+        feature    = Variable(sample)
+        _input     = feature[:, :-1]
+        target     = feature[:, 1:]
+        logp, mean, logv, z = model(_input, length)
+        NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
+            length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
+
+        loss = (NLL_loss + KL_weight * KL_loss)/batch_size
+        print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f"
+                %(loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
+
+            
+        logp = torch.argmax(logp, dim=2)
+        k = 0 
+        for i in logp:
+            writer.write(' '.join([args.index_2_word[int(l)] for l in sample[k]]))
+            writer.write('\n=============\n')
+            writer.write(' '.join([args.index_2_word[int(j)] for j in i]))
+            writer.write('\n************\n\n')
+            k = k + 1
+        cnt_batch += 1
+    writer.close()
 
 
-def train_vae(train_iter, model, args):
+def train_vae(train_iter, eval_iter, model, args):
     save_dir = "../model/"
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)    
@@ -166,6 +186,9 @@ def train_vae(train_iter, model, args):
             if iteration % args.print_every == 0:
                 print("Train: Batch %04d, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f"
                 %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
+            if step % 200 == 0:
+                eval_vae(model, eval_iter, args, step)
+
             iteration += 1
 
 
@@ -176,13 +199,13 @@ def kl_anneal_function(anneal_function, step, k, x0):
         return min(1, step/x0)
 
 def loss_fn(logp, target, length, mean, logv, anneal_function, step, k, x0, pad_idx):
-    NLL = torch.nn.NLLLoss(size_average = False, ignore_index=pad_idx)
-    target = target[:, :torch.max(length).data[0]].contiguous().view(-1)
-    logp = logp.view(-1, logp.size(2))
+    NLL      = torch.nn.NLLLoss(size_average = False, ignore_index=pad_idx)
+    target   = target[:, :torch.max(length).data[0]].contiguous().view(-1)
+    logp     = logp.view(-1, logp.size(2))
     NLL_loss = NLL(logp, target)
 
     # KL Divergence
-    KL_loss = -0.5 * torch.sum(1 + logv - mean.pow(2) - logv.exp())
+    KL_loss   = -0.5 * torch.sum(1 + logv - mean.pow(2) - logv.exp())
     KL_weight = kl_anneal_function(anneal_function, step, k, x0)
 
     return NLL_loss, KL_loss, KL_weight
