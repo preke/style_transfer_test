@@ -145,10 +145,11 @@ def train_vae(train_iter, model, args):
             # Forward pass
             sample     = batch.text[0]
             length     = batch.text[1]
+            length     = torch.Tensor([i-1 for i in length.tolist()]).cuda()
             batch_size = len(sample)
             feature    = Variable(sample)
             target     = feature[:, :-1]
-            logp, mean, logv, z = model(feature, torch.Tensor([i-1 for i in length.tolist()]).cuda())
+            logp, mean, logv, z = model(feature, length)
             
             # loss calculation
             NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
