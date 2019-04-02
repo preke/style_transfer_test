@@ -145,7 +145,8 @@ def train_vae(train_iter, model, args):
             # Forward pass
             sample     = batch.text[0]
             length     = batch.text[1]
-            length     = torch.Tensor([i-1 for i in length.tolist()]).cuda()
+            
+            # length     = torch.Tensor([i-1 for i in length.tolist()]).cuda()
             batch_size = len(sample)
             feature    = Variable(sample)
             target     = feature[:, :-1]
@@ -176,7 +177,7 @@ def kl_anneal_function(anneal_function, step, k, x0):
 
 def loss_fn(logp, target, length, mean, logv, anneal_function, step, k, x0, pad_idx):
     # NLL       = torch.nn.NLLLoss(size_average=False, ignore_index=datasets['train'].pad_idx)
-    NLL = torch.nn.NLLLoss(size_average = False, ignore_index = pad_idx)
+    NLL = torch.nn.NLLLoss(size_average = False)
     # cut-off unnecessary padding from target, and flatten
     # print(torch.max(length).data[0])
     target = target[:, :torch.max(length).data[0]].contiguous().view(-1)
