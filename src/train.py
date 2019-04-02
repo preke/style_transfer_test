@@ -131,9 +131,9 @@ def eval_vae(model, eval_iter, args, step):
         NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
             length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
 
-        loss = (NLL_loss + KL_weight * KL_loss)/batch_size
-        print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f"
-                %(loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
+        # loss = (NLL_loss + KL_weight * KL_loss)/batch_size
+        # print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f"
+        #         %(loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
 
             
         logp = torch.argmax(logp, dim=2)
@@ -185,7 +185,7 @@ def train_vae(train_iter, eval_iter, model, args):
             if iteration % args.print_every == 0:
                 print("Train: Batch %04d, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f"
                 %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
-            if step % 200 == 0:
+            if step % 2000 == 0:
                 eval_vae(model, eval_iter, args, step)
                 model.train()
             iteration += 1
