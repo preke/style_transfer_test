@@ -142,7 +142,7 @@ def train_vae(train_iter, model, args):
         model.train()
         tracker = defaultdict(tensor)
         for batch in train_iter:
-            
+            iteration = 0
             # Forward pass
 
             sample     = batch.text[0]
