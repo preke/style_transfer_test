@@ -4,7 +4,7 @@ from torch.autograd import Variable
 from torch.autograd import Function
 import torch.nn.functional as F
 import numpy as np
-
+import torch.nn.utils.rnn as rnn_utils
 from utils import *
 
 # logging
@@ -94,11 +94,6 @@ class CNN_Text(nn.Module):
         q1 = torch.cat(q1, 1) # 32 * 300
         q1 = self.fc1(q1)
         return q1
-
-        
-        
-
-
 
 class Decoder(nn.Module):
     def __init__(self, vocab_size, embed_dim, hidden_dim, max_len, trg_soi, pre_embedding):
@@ -220,6 +215,128 @@ class Encoder(nn.Module):
             enc_h, _ = nn.utils.rnn.pad_packed_sequence(enc_h, batch_first=True)
 
         return enc_h, enc_h_t
+
+
+class SentenceVAE(nn.Module):
+
+    def __init__(self, vocab_size, embedding_size, rnn_type, hidden_size, word_dropout, embedding_dropout, latent_size,
+                sos_idx, eos_idx, pad_idx, unk_idx, max_sequence_length, pre_embedding, num_layers=1, bidirectional=False):
+
+        super().__init__()
+        self.tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.Tensor
+        self.max_sequence_length = max_sequence_length
+        self.sos_idx = sos_idx
+        self.eos_idx = eos_idx
+        self.pad_idx = pad_idx
+        self.unk_idx = unk_idx
+
+        self.latent_size = latent_size
+
+        self.rnn_type = rnn_type
+        self.bidirectional = bidirectional
+        self.num_layers = num_layers
+        self.hidden_size = hidden_size
+
+        self.embedding = nn.Embedding(vocab_size, embedding_size)
+        self.embed.weight.data.copy_(torch.from_numpy(pre_embedding))
+        self.word_dropout_rate = word_dropout
+        self.embedding_dropout = nn.Dropout(p=embedding_dropout)
+
+        if rnn_type == 'rnn':
+            rnn = nn.RNN
+        elif rnn_type == 'gru':
+            rnn = nn.GRU
+        else:
+            raise ValueError()
+
+        self.encoder_rnn = rnn(embedding_size, hidden_size, num_layers=num_layers, bidirectional=self.bidirectional, batch_first=True)
+        self.decoder_rnn = rnn(embedding_size, hidden_size, num_layers=num_layers, bidirectional=self.bidirectional, batch_first=True)
+
+        self.hidden_factor = (2 if bidirectional else 1) * num_layers
+
+        self.hidden2mean = nn.Linear(hidden_size * self.hidden_factor, latent_size)
+        self.hidden2logv = nn.Linear(hidden_size * self.hidden_factor, latent_size)
+        self.latent2hidden = nn.Linear(latent_size, hidden_size * self.hidden_factor)
+        self.outputs2vocab = nn.Linear(hidden_size * (2 if bidirectional else 1), vocab_size)
+
+    
+
+    def encoder(self, input_sequence, sorted_lengths, batch_size):
+        input_embedding = self.embedding(input_sequence)
+
+        packed_input = rnn_utils.pack_padded_sequence(input_embedding, sorted_lengths.data.tolist(), batch_first=True)
+
+        _, hidden = self.encoder_rnn(packed_input)
+
+        if self.bidirectional or self.num_layers > 1:
+            # flatten hidden state
+            hidden = hidden.view(batch_size, self.hidden_size*self.hidden_factor)
+        else:
+            hidden = hidden.squeeze()
+
+        # REPARAMETERIZATION
+        mean = self.hidden2mean(hidden)
+        logv = self.hidden2logv(hidden)
+        std = torch.exp(0.5 * logv)
+
+        z = to_var(torch.randn([batch_size, self.latent_size]))
+        z = z * std + mean
+
+        return mean, logv, z
+
+    def decoder(self, z, batch_size, sorted_idx, input_sequence, sorted_lengths):
+        input_embedding = self.embedding(input_sequence)
+        hidden = self.latent2hidden(z)
+
+        if self.bidirectional or self.num_layers > 1:
+            # unflatten hidden state
+            hidden = hidden.view(self.hidden_factor, batch_size, self.hidden_size)
+        else:
+            hidden = hidden.unsqueeze(0)
+
+        # decoder input
+        if self.word_dropout_rate > 0:
+            print(self.word_dropout_rate)
+            # randomly replace decoder input with <unk>
+            prob = torch.rand(input_sequence.size())
+            if torch.cuda.is_available():
+                prob=prob.cuda()
+            prob[(input_sequence.data - self.sos_idx) * (input_sequence.data - self.pad_idx) == 0] = 1
+            decoder_input_sequence = input_sequence.clone()
+            decoder_input_sequence[prob < self.word_dropout_rate] = self.unk_idx
+            input_embedding = self.embedding(decoder_input_sequence)
+        input_embedding = self.embedding_dropout(input_embedding)
+        packed_input = rnn_utils.pack_padded_sequence(input_embedding, sorted_lengths.data.tolist(), batch_first=True)
+
+        # decoder forward pass
+        outputs, _ = self.decoder_rnn(packed_input, hidden)
+
+        # process outputs
+        padded_outputs = rnn_utils.pad_packed_sequence(outputs, batch_first=True)[0]
+        padded_outputs = padded_outputs.contiguous()
+        _,reversed_idx = torch.sort(sorted_idx)
+        padded_outputs = padded_outputs[reversed_idx]
+        b,s,_ = padded_outputs.size()
+
+        # project outputs to vocab
+        logp = nn.functional.log_softmax(self.outputs2vocab(padded_outputs.view(-1, padded_outputs.size(2))), dim=-1)
+        logp = logp.view(b, s, self.embedding.num_embeddings)
+        return logp
+
+    def forward(self, input_sequence, length):
+
+        batch_size = input_sequence.size(0)
+        sorted_lengths, sorted_idx = torch.sort(length, descending=True)
+        input_sequence = input_sequence[sorted_idx]
+
+        # ENCODER
+        mean, logv, z = self.encoder(input_sequence, sorted_lengths, batch_size)
+
+        # DECODER
+        logp = self.decoder(z, batch_size, sorted_idx, input_sequence, sorted_lengths)
+
+        return logp, mean, logv, z
+
 
 
 

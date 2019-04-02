@@ -72,6 +72,14 @@ args.kernel_sizes = '3,4,5'
 args.kernel_sizes = [int(k) for k in args.kernel_sizes.split(',')]
 args.dropout      = 0.1
 
+
+args.rnn_type          = 'gru'
+args.word_dropout      = 0
+args.embedding_dropout = 0.5
+args.latent_size       = 16
+args.num_layers        = 1
+args.bidirectional     = True
+
 # Preprocess
 if not os.path.exists(TEST_PRE_PATH):
     logger.info('Preprocessing begin...')
@@ -101,7 +109,7 @@ args.pretrained_weight = get_pretrained_word_embed(small_glove_path, args, text_
 # python main.py -snapshot RGLModel/epoch_10_batch_254000_acc_85.2_bestmodel.pt
 
 
-
+'''
 # Build s2s model and train
 s2s_model = Seq2Seq(src_nword=args.vocab_size, 
                     trg_nword=args.vocab_size, 
@@ -130,14 +138,30 @@ else:
         print(traceback.print_exc())
         print('\n' + '-' * 89)
         print('Exiting from training early')
+'''
 
+# Build Sentence_VAE model and train
 
+vae_model = SentenceVAE(
+    vocab_size          = args.vocab_size,
+    sos_idx             = args.word_2_index['<SOS>'],
+    eos_idx             = args.word_2_index['<EOS>'],
+    pad_idx             = args.word_2_index['<PAD>'],
+    unk_idx             = args.word_2_index['<UNK>'],
+    max_sequence_length = args.max_length,
+    embedding_size      = args.embed_dim,
+    rnn_type            = args.rnn_type,
+    hidden_size         = args.hidden_dim,
+    word_dropout        = args.word_dropout,
+    embedding_dropout   = args.embedding_dropout,
+    latent_size         = args.latent_size,
+    num_layers          = args.num_layers,
+    bidirectional       = args.bidirectional)
 
-
-
-
-
-
+vae_model = vae_model.cuda()
+if args.snapshot is not None:
+    logger.info('Load model from' + args.snapshot)
+    vae_model.load_state_dict(torch.load(args.snapshot))
 
 
 

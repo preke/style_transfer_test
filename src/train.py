@@ -112,3 +112,90 @@ def show_reconstruct_results_S2S(dev_iter, model, args, cnt, avg_loss):
         cnt_batch += 1
     writer.close()
 
+
+
+def eval_vae(dev_iter, model):
+    model.eval()
+    # if 'target_sents' not in tracker:
+    #     tracker['target_sents'] = list()
+    #     tracker['target_sents'] += idx2word(batch['target'].data, i2w=datasets['train'].get_i2w(), pad_idx=datasets['train'].pad_idx)
+    #     tracker['z'] = torch.cat((tracker['z'], z.data), dim=0)
+    #     logp = torch.argmax(logp, dim=2)
+    #     if 'gen_sents' not in tracker:
+    #         tracker['gen_sents'] = list()
+    #     tracker['gen_sents'] += idx2word(logp.data, i2w=datasets['train'].get_i2w(), pad_idx=datasets['train'].pad_idx)
+
+
+def train_vae():
+    save_dir = "../model/"
+    if not os.path.exists(save_dir):
+        os.mkdir(save_dir)
+
+    # NLL       = torch.nn.NLLLoss(size_average=False, ignore_index=datasets['train'].pad_idx)
+    NLL       = torch.nn.NLLLoss(size_average=False)
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.learning_rate)
+    tensor    = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.Tensor
+    for epoch in range(n_epoch):
+        model.train()
+        tracker = defaultdict(tensor)
+        for batch in train_iter:
+            
+            # Forward pass
+
+            sample     = batch.text[0]
+            length     = batch.text[1]
+            batch_size = len(sample)
+            feature    = Variable(sample)
+            target     = feature[:, :-1]
+            logp, mean, logv, z = model(feature, length)
+            
+            # loss calculation
+            NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
+                length, mean, logv, args.anneal_function, step, args.k, args.x0)
+
+            loss = (NLL_loss + KL_weight * KL_loss)/batch_size
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            step += 1
+
+            tracker['ELBO'] = torch.cat((tracker['ELBO'], loss.data.unsqueeze(0)))
+            if iteration % args.print_every == 0 or iteration+1 == len(data_loader):
+                print("Train: Batch %04d/%i, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f"
+                %(iteration, len(data_loader)-1, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
+
+
+
+
+
+def kl_anneal_function(anneal_function, step, k, x0):
+    if anneal_function == 'logistic':
+        return float(1/(1+np.exp(-k*(step-x0))))
+    elif anneal_function == 'linear':
+        return min(1, step/x0)
+
+
+def loss_fn(logp, target, length, mean, logv, anneal_function, step, k, x0):
+    # cut-off unnecessary padding from target, and flatten
+    # print(torch.max(length).data[0])
+    target = target[:, :torch.max(length).data[0]].contiguous().view(-1)
+    logp = logp.view(-1, logp.size(2))
+    
+    # Negative Log Likelihood
+    NLL_loss = NLL(logp, target)
+
+    # KL Divergence
+    KL_loss = -0.5 * torch.sum(1 + logv - mean.pow(2) - logv.exp())
+    KL_weight = kl_anneal_function(anneal_function, step, k, x0)
+
+    return NLL_loss, KL_loss, KL_weight
+
+
+
+
+
+
+
+
+
+
