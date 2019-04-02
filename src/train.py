@@ -133,8 +133,8 @@ def train_vae(train_iter, model, args):
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
 
-    # NLL       = torch.nn.NLLLoss(size_average=False, ignore_index=datasets['train'].pad_idx)
-    NLL       = torch.nn.NLLLoss(size_average=False)
+    
+    
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     tensor    = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.Tensor
     step = 0
@@ -179,6 +179,8 @@ def kl_anneal_function(anneal_function, step, k, x0):
 
 
 def loss_fn(logp, target, length, mean, logv, anneal_function, step, k, x0):
+    # NLL       = torch.nn.NLLLoss(size_average=False, ignore_index=datasets['train'].pad_idx)
+    NLL       = torch.nn.NLLLoss(size_average=False)
     # cut-off unnecessary padding from target, and flatten
     # print(torch.max(length).data[0])
     target = target[:, :torch.max(length).data[0]].contiguous().view(-1)
