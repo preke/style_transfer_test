@@ -144,7 +144,6 @@ def eval_vae(model, eval_iter, args, step):
             writer.write(' '.join([args.index_2_word[int(j)] for j in i]))
             writer.write('\n************\n\n')
             k = k + 1
-        cnt_batch += 1
     writer.close()
 
 
