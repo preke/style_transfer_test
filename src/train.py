@@ -179,8 +179,9 @@ def loss_fn(logp, target, length, mean, logv, anneal_function, step, k, x0, pad_
     # print(torch.max(length).data[0])
     target = target[:, :torch.max(length).data[0]].contiguous().view(-1)
     logp = logp.view(-1, logp.size(2))
-    
     # Negative Log Likelihood
+    print(logp.size())
+    print(target.size())
     NLL_loss = NLL(logp, target)
 
     # KL Divergence
