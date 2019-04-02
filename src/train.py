@@ -131,9 +131,7 @@ def eval_vae(dev_iter, model):
 def train_vae(train_iter, model, args):
     save_dir = "../model/"
     if not os.path.exists(save_dir):
-        os.mkdir(save_dir)
-
-    
+        os.mkdir(save_dir)    
     
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     tensor    = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.Tensor
@@ -154,7 +152,7 @@ def train_vae(train_iter, model, args):
             
             # loss calculation
             NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
-                length, mean, logv, args.anneal_function, step, args.k, args.x0)
+                length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
 
             loss = (NLL_loss + KL_weight * KL_loss)/batch_size
             optimizer.zero_grad()
@@ -168,19 +166,15 @@ def train_vae(train_iter, model, args):
                 %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
 
 
-
-
-
 def kl_anneal_function(anneal_function, step, k, x0):
     if anneal_function == 'logistic':
         return float(1/(1+np.exp(-k*(step-x0))))
     elif anneal_function == 'linear':
         return min(1, step/x0)
 
-
-def loss_fn(logp, target, length, mean, logv, anneal_function, step, k, x0):
+def loss_fn(logp, target, length, mean, logv, anneal_function, step, k, x0, pad_idx):
     # NLL       = torch.nn.NLLLoss(size_average=False, ignore_index=datasets['train'].pad_idx)
-    NLL       = torch.nn.NLLLoss(size_average=False)
+    NLL = torch.nn.NLLLoss(size_average = False, ignore_index = pad_idx)
     # cut-off unnecessary padding from target, and flatten
     # print(torch.max(length).data[0])
     target = target[:, :torch.max(length).data[0]].contiguous().view(-1)
