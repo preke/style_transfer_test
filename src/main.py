@@ -79,7 +79,7 @@ args.embedding_dropout = 0.5
 args.latent_size       = 16
 args.num_layers        = 1
 args.bidirectional     = True
-
+args.anneal_function   = 'logistic'
 # Preprocess
 if not os.path.exists(TEST_PRE_PATH):
     logger.info('Preprocessing begin...')
