@@ -239,7 +239,7 @@ class SentenceVAE(nn.Module):
 
         self.embedding = nn.Embedding(vocab_size, embedding_size)
         # self.embedding.weight.data.copy_(torch.from_numpy(pre_embedding))
-        self.embedding.weight.data.copy_(pre_embedding)
+        # self.embedding.weight.data.copy_(pre_embedding)
         self.word_dropout_rate = word_dropout
         self.embedding_dropout = nn.Dropout(p=embedding_dropout)
 
