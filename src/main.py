@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 from utils import preprocess_write, get_pretrained_word_embed, preprocess_pos_neg
 from dataload import load_data, load_pos_neg_data
 from model import Seq2Seq, SentenceVAE
-from train import eval_S2S, train_S2S, show_reconstruct_results_S2S
+from train import eval_S2S, train_S2S, show_reconstruct_results_S2S, train_vae
 
 
 # paths
