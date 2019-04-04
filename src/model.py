@@ -320,8 +320,7 @@ class SentenceVAE(nn.Module):
             logp = nn.functional.log_softmax(self.outputs2vocab(padded_outputs.view(-1, padded_outputs.size(2))), dim=-1)
             logp = logp.view(b, s, self.embedding.num_embeddings)
             return logp
-        else:
-            
+        else: 
             outputs = Variable(torch.zeros(batch_size, self.max_sequence_length, self.vocab_size))
             t = 0
             while(t < self.max_sequence_length-1):
