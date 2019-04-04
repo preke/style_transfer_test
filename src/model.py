@@ -289,7 +289,7 @@ class SentenceVAE(nn.Module):
         else:
             hidden = hidden.unsqueeze(0)
 
-        if decoder_input:
+        if decoder_input is not None:
             input_embedding = self.embedding(decoder_input)
             # decoder input
             if self.word_dropout_rate > 0:
