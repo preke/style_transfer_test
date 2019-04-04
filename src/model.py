@@ -320,26 +320,26 @@ class SentenceVAE(nn.Module):
             logp = nn.functional.log_softmax(self.outputs2vocab(padded_outputs.view(-1, padded_outputs.size(2))), dim=-1)
             logp = logp.view(b, s, self.embedding.num_embeddings)
             return logp
-        else: 
-            outputs = Variable(torch.zeros(batch_size, self.max_sequence_length, self.vocab_size))
-            t = 0
-            while(t < self.max_sequence_length-1):
-                if t == 0:
-                    input_sequence = Variable(torch.LongTensor([self.sos_idx] * batch_size), volatile=True)
-                    if torch.cuda.is_available():
-                        input_sequence = input_sequence.cuda()
-                        outputs        = outputs.cuda()
+        # else: 
+        #     outputs = Variable(torch.zeros(batch_size, self.max_sequence_length, self.vocab_size))
+        #     t = 0
+        #     while(t < self.max_sequence_length-1):
+        #         if t == 0:
+        #             input_sequence = Variable(torch.LongTensor([self.sos_idx] * batch_size), volatile=True)
+        #             if torch.cuda.is_available():
+        #                 input_sequence = input_sequence.cuda()
+        #                 outputs        = outputs.cuda()
 
-                input_sequence  = input_sequence.unsqueeze(1)
-                input_embedding = self.embedding(input_sequence) # b * e
-                output, hidden  = self.decoder_rnn(input_embedding, hidden) 
-                logits          = self.outputs2vocab(output) # b * v
-                outputs[:,t,:]  = nn.functional.log_softmax(logits, dim=-1).squeeze(1)  # b * v 
-                input_sequence  = self._sample(logits)
-                t += 1
+        #         input_sequence  = input_sequence.unsqueeze(1)
+        #         input_embedding = self.embedding(input_sequence) # b * e
+        #         output, hidden  = self.decoder_rnn(input_embedding, hidden) 
+        #         logits          = self.outputs2vocab(output) # b * v
+        #         outputs[:,t,:]  = nn.functional.log_softmax(logits, dim=-1).squeeze(1)  # b * v 
+        #         input_sequence  = self._sample(logits)
+        #         t += 1
 
-            outputs = outputs.view(batch_size, self.max_sequence_length, self.embedding.num_embeddings)
-            return outputs
+        #     outputs = outputs.view(batch_size, self.max_sequence_length, self.embedding.num_embeddings)
+        #     return outputs
 
 
     def forward(self, input_sequence, length, decoder_input=None):
