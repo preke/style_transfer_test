@@ -339,7 +339,7 @@ class SentenceVAE(nn.Module):
                 input_sequence  = self._sample(logits)
                 t += 1
 
-            outputs = outputs.view(batch_size, self.max_sequence_length-1, self.embedding.num_embeddings)
+            outputs = outputs.view(batch_size, self.max_sequence_length, self.embedding.num_embeddings)
             return outputs
 
 
