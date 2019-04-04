@@ -231,6 +231,7 @@ class SentenceVAE(nn.Module):
         self.bidirectional       = bidirectional
         self.num_layers          = num_layers
         self.hidden_size         = hidden_size
+        self.vocab_size          = vocab_size
 
         self.embedding = nn.Embedding(vocab_size, embedding_size)
         # self.embedding.weight.data.copy_(torch.from_numpy(pre_embedding))
@@ -321,7 +322,7 @@ class SentenceVAE(nn.Module):
             return logp
         else:
             
-            outputs = Variable(torch.zeros(batch_size, self.max_sequence_length, vocab_size))
+            outputs = Variable(torch.zeros(batch_size, self.max_sequence_length, self.vocab_size))
             t = 0
             while(t < self.max_sequence_length):
                 if t == 0:
