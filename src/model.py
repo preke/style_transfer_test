@@ -335,6 +335,9 @@ class SentenceVAE(nn.Module):
                 input_embedding = self.embedding(input_sequence) # b * e
                 output, hidden  = self.decoder_rnn(input_embedding, hidden) 
                 logits          = self.outputs2vocab(output) # b * v
+                print(logits.size())
+                print(nn.functional.log_softmax(logits, dim=-1).size())
+                print(outputs)
                 outputs[:,t,:]  = nn.functional.log_softmax(logits, dim=-1)  # b * v 
                 input_sequence  = self._sample(logits)
                 t += 1
