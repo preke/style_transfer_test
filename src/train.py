@@ -129,7 +129,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         target     = feature[:, 1:]
         logp, mean, logv, z = model(_input, length, _input)
         NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
-            length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
+            length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx, is_train=False)
             
         logp = torch.argmax(logp, dim=2)
         k = 0 
@@ -196,11 +196,14 @@ def kl_anneal_function(anneal_function, step, k, x0):
     elif anneal_function == 'linear':
         return min(1, step/x0)
 
-def loss_fn(logp, target, length, mean, logv, anneal_function, step, k, x0, pad_idx):
+def loss_fn(logp, target, length, mean, logv, anneal_function, step, k, x0, pad_idx, is_train=True):
     NLL      = torch.nn.NLLLoss(size_average = False, ignore_index=pad_idx)
     target   = target[:, :torch.max(length).data[0]].contiguous().view(-1)
-    batch_size = logp.size(0)
-    logp     = logp.view(-1, logp.size(2))[:batch_size*torch.max(length), :]
+    if not is_train:
+        batch_size = logp.size(0)
+        logp     = logp.view(-1, logp.size(2))[:batch_size*torch.max(length), :]
+    else:
+        logp     = logp.view(-1, logp.size(2))
     NLL_loss = NLL(logp, target)
     # KL Divergence
     KL_loss   = -0.5 * torch.sum(1 + logv - mean.pow(2) - logv.exp())
