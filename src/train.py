@@ -130,11 +130,6 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         logp, mean, logv, z = model(_input, length)
         NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
             length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
-
-        # loss = (NLL_loss + KL_weight * KL_loss)/batch_size
-        # print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f"
-        #         %(loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
-
             
         logp = torch.argmax(logp, dim=2)
         k = 0 
@@ -170,7 +165,7 @@ def train_vae(train_iter, eval_iter, model, args):
             feature    = Variable(sample)
             _input     = feature[:, :-1]
             target     = feature[:, 1:]
-            logp, mean, logv, z = model(_input, length)
+            logp, mean, logv, z = model(_input, length, _input)
             
             # loss calculation
             NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
