@@ -337,7 +337,7 @@ class SentenceVAE(nn.Module):
                 logits          = self.outputs2vocab(output) # b * v
                 print(logits.size())
                 print(nn.functional.log_softmax(logits, dim=-1).size())
-                print(outputs)
+                print(outputs.size())
                 outputs[:,t,:]  = nn.functional.log_softmax(logits, dim=-1)  # b * v 
                 input_sequence  = self._sample(logits)
                 t += 1
