@@ -324,7 +324,7 @@ class SentenceVAE(nn.Module):
             
             outputs = Variable(torch.zeros(batch_size, self.max_sequence_length, self.vocab_size))
             t = 0
-            while(t < self.max_sequence_length):
+            while(t < self.max_sequence_length-1):
                 if t == 0:
                     input_sequence = Variable(torch.LongTensor([self.sos_idx] * batch_size), volatile=True)
                     if torch.cuda.is_available():
@@ -339,7 +339,7 @@ class SentenceVAE(nn.Module):
                 input_sequence  = self._sample(logits)
                 t += 1
 
-            outputs = outputs.view(batch_size, self.max_sequence_length, self.embedding.num_embeddings)
+            outputs = outputs.view(batch_size, self.max_sequence_length-1, self.embedding.num_embeddings)
             return outputs
 
 
