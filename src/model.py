@@ -326,11 +326,11 @@ class SentenceVAE(nn.Module):
             logp = logp.view(b, s, self.embedding.num_embeddings)
             return logp
         else: 
-            outputs = Variable(torch.zeros(batch_size, self.max_sequence_length, self.vocab_size))
+            outputs = Variable(torch.ones(batch_size, self.max_sequence_length, self.vocab_size))
             t = 0
             while(t < self.max_sequence_length-1):
                 if t == 0:
-                    input_sequence = Variable(torch.LongTensor([self.eos_idx] * batch_size), volatile=True)
+                    input_sequence = Variable(torch.LongTensor([self.sos_idx] * batch_size), volatile=True)
                     if torch.cuda.is_available():
                         input_sequence = input_sequence.cuda()
                         outputs        = outputs.cuda()
