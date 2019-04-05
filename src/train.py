@@ -130,6 +130,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         
         _, mean, logv, z = model(_input, length)
         generations = model.inference(z)
+        print(generations)
         # NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
         #     length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
 
