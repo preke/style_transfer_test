@@ -6,7 +6,7 @@ import torch.nn.functional as F
 import numpy as np
 import torch.nn.utils.rnn as rnn_utils
 from utils import *
-
+import time
 # logging
 import logging
 import logging.config
@@ -342,6 +342,7 @@ class SentenceVAE(nn.Module):
                 outputs[:,t,:]  = nn.functional.log_softmax(logits, dim=-1).squeeze(1)  # b * v 
                 input_sequence  = self._sample(logits)
                 print(input_sequence)
+                time.sleep(100)
                 t += 1
 
             outputs = outputs.view(batch_size, self.max_sequence_length, self.embedding.num_embeddings)
