@@ -252,8 +252,8 @@ class SentenceVAE(nn.Module):
         else:
             raise ValueError()
 
-        self.encoder_rnn = rnn(embedding_size, hidden_size, num_layers=num_layers, bidirectional=self.bidirectional, batch_first=True)
-        self.decoder_rnn = rnn(embedding_size, hidden_size, num_layers=num_layers, bidirectional=self.bidirectional, batch_first=True)
+        self.encoder_rnn = nn.GRU(embedding_size, hidden_size, num_layers=num_layers, bidirectional=self.bidirectional, batch_first=True)
+        self.decoder_rnn = nn.GRU(embedding_size, hidden_size, num_layers=num_layers, bidirectional=self.bidirectional, batch_first=True)
 
         self.hidden_factor = (2 if bidirectional else 1) * num_layers
 
@@ -344,6 +344,7 @@ class SentenceVAE(nn.Module):
                 logits          = self.outputs2vocab(output) # b * v
                 outputs[:,t,:]  = nn.functional.log_softmax(logits, dim=-1).squeeze(1)  # b * v 
                 input_sequence  = self._sample(logits)
+                print(input_sequence)
                 t += 1
 
             outputs = outputs.view(batch_size, self.max_sequence_length, self.embedding.num_embeddings)
