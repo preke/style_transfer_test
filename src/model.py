@@ -313,12 +313,17 @@ class SentenceVAE(nn.Module):
 
             # decoder forward pass
             outputs, _ = self.decoder_rnn(packed_input, hidden)
-
+            print(outputs.size())
             # process outputs
             padded_outputs = rnn_utils.pad_packed_sequence(outputs, batch_first=True)[0]
+            print(padded_outputs.size())
             padded_outputs = padded_outputs.contiguous()
             _,reversed_idx = torch.sort(sorted_idx)
+            print(sorted_idx)
+            print(reversed_idx)
             padded_outputs = padded_outputs[reversed_idx]
+            print(padded_outputs.size())
+            time.sleep(100)
             b,s,_ = padded_outputs.size()
 
             # project outputs to vocab

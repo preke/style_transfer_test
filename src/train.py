@@ -172,12 +172,6 @@ def train_vae(train_iter, eval_iter, model, args):
             target     = feature[:, 1:]
             logp, mean, logv, z = model(_input, length, _input)
             
-            logp = torch.argmax(logp, dim=2)
-            k = 0 
-            for i in logp:
-                print(' '.join([args.index_2_word[int(j)] for j in i]))
-                k = k + 1
-            time.sleep(30)
             # loss calculation
             NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
                 length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
