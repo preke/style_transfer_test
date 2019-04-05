@@ -397,7 +397,7 @@ class SentenceVAE(nn.Module):
         generations      = self.tensor(batch_size, self.max_sequence_length).fill_(self.pad_idx).long()
 
         t = 0
-        while(t<self.max_sequence_length and len(running_seqs)>0):
+        while(t < self.max_sequence_length and len(running_seqs)>0):
 
             if t == 0:
                 input_sequence = to_var(torch.Tensor(batch_size).fill_(self.sos_idx).long())
