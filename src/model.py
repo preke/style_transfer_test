@@ -98,16 +98,16 @@ class CNN_Text(nn.Module):
 class Decoder(nn.Module):
     def __init__(self, vocab_size, embed_dim, hidden_dim, max_len, trg_soi, pre_embedding):
         super(Decoder, self).__init__()
-        self.hidden_dim  = hidden_dim
-        self.max_len     = max_len
-        self.vocab_size  = vocab_size
-        self.trg_soi     = trg_soi
+        self.hidden_dim = hidden_dim
+        self.max_len = max_len
+        self.vocab_size = vocab_size
+        self.trg_soi = trg_soi
         
-        self.embed       = nn.Embedding(vocab_size, embed_dim) 
+        self.embed = nn.Embedding(vocab_size, embed_dim) 
         self.embed.weight.data.copy_(pre_embedding)       
-        self.attention   = Attention(hidden_dim) 
+        self.attention = Attention(hidden_dim) 
         self.decodercell = DecoderCell(embed_dim, hidden_dim)
-        self.dec2word    = nn.Linear(hidden_dim, vocab_size)
+        self.dec2word = nn.Linear(hidden_dim, vocab_size)
 
 
     def forward(self, enc_h, prev_s, target=None):
@@ -144,12 +144,12 @@ class Decoder(nn.Module):
                 outputs = outputs.cuda()
             
             for i in range(1, self.max_len):
-                target         = self.embed(target).squeeze(1)              
-                ctx            = self.attention(enc_h, prev_s)                 
-                prev_s         = self.decodercell(target, prev_s, ctx)
-                output         = self.dec2word(prev_s)
+                target = self.embed(target).squeeze(1)              
+                ctx = self.attention(enc_h, prev_s)                 
+                prev_s = self.decodercell(target, prev_s, ctx)
+                output = self.dec2word(prev_s)
                 outputs[:,i,:] = output
-                target         = output.topk(1)[1]
+                target = output.topk(1)[1]
             
         return outputs
 
@@ -182,6 +182,7 @@ class Encoder(nn.Module):
         super(Encoder, self).__init__()
         self.num_layers = 2
         self.hidden_dim = hidden_dim
+        print(args.embed_dim)
         self.embedding = nn.Embedding(vocab_size, embed_dim)
         self.embedding.weight.data.copy_(args.pretrained_weight)
         self.gru = nn.GRU(embed_dim, self.hidden_dim, self.num_layers, batch_first=True, bidirectional=True)
@@ -215,23 +216,26 @@ class Encoder(nn.Module):
 
         return enc_h, enc_h_t
 
+
 class SentenceVAE(nn.Module):
+
     def __init__(self, vocab_size, embedding_size, rnn_type, hidden_size, word_dropout, embedding_dropout, latent_size,
                 sos_idx, eos_idx, pad_idx, unk_idx, max_sequence_length, pre_embedding, num_layers=1, bidirectional=False):
 
         super().__init__()
-        self.tensor              = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.Tensor
+        self.tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.Tensor
         self.max_sequence_length = max_sequence_length
-        self.sos_idx             = sos_idx
-        self.eos_idx             = eos_idx
-        self.pad_idx             = pad_idx
-        self.unk_idx             = unk_idx
-        self.latent_size         = latent_size
-        self.rnn_type            = rnn_type
-        self.bidirectional       = bidirectional
-        self.num_layers          = num_layers
-        self.hidden_size         = hidden_size
-        self.vocab_size          = vocab_size
+        self.sos_idx = sos_idx
+        self.eos_idx = eos_idx
+        self.pad_idx = pad_idx
+        self.unk_idx = unk_idx
+
+        self.latent_size = latent_size
+
+        self.rnn_type = rnn_type
+        self.bidirectional = bidirectional
+        self.num_layers = num_layers
+        self.hidden_size = hidden_size
 
         self.embedding = nn.Embedding(vocab_size, embedding_size)
         # self.embedding.weight.data.copy_(torch.from_numpy(pre_embedding))
@@ -251,8 +255,8 @@ class SentenceVAE(nn.Module):
 
         self.hidden_factor = (2 if bidirectional else 1) * num_layers
 
-        self.hidden2mean   = nn.Linear(hidden_size * self.hidden_factor, latent_size)
-        self.hidden2logv   = nn.Linear(hidden_size * self.hidden_factor, latent_size)
+        self.hidden2mean = nn.Linear(hidden_size * self.hidden_factor, latent_size)
+        self.hidden2logv = nn.Linear(hidden_size * self.hidden_factor, latent_size)
         self.latent2hidden = nn.Linear(latent_size, hidden_size * self.hidden_factor)
         self.outputs2vocab = nn.Linear(hidden_size * (2 if bidirectional else 1), vocab_size)
 
@@ -282,7 +286,6 @@ class SentenceVAE(nn.Module):
         return mean, logv, z
 
     def decoder(self, z, batch_size, sorted_idx, sorted_lengths, decoder_input=None):
-        
         hidden = self.latent2hidden(z)
         if self.bidirectional or self.num_layers > 1:
             # unflatten hidden state
@@ -341,9 +344,48 @@ class SentenceVAE(nn.Module):
             outputs = outputs.view(batch_size, self.max_sequence_length, self.embedding.num_embeddings)
             return outputs
 
+        '''
+        input_embedding = self.embedding(input_sequence)
+        hidden = self.latent2hidden(z)
+
+        if self.bidirectional or self.num_layers > 1:
+            # unflatten hidden state
+            hidden = hidden.view(self.hidden_factor, batch_size, self.hidden_size)
+        else:
+            hidden = hidden.unsqueeze(0)
+
+        # decoder input
+        if self.word_dropout_rate > 0:
+            print(self.word_dropout_rate)
+            # randomly replace decoder input with <unk>
+            prob = torch.rand(input_sequence.size())
+            if torch.cuda.is_available():
+                prob=prob.cuda()
+            prob[(input_sequence.data - self.sos_idx) * (input_sequence.data - self.pad_idx) == 0] = 1
+            decoder_input_sequence = input_sequence.clone()
+            decoder_input_sequence[prob < self.word_dropout_rate] = self.unk_idx
+            input_embedding = self.embedding(decoder_input_sequence)
+        input_embedding = self.embedding_dropout(input_embedding)
+        packed_input = rnn_utils.pack_padded_sequence(input_embedding, sorted_lengths.data.tolist(), batch_first=True)
+
+        # decoder forward pass
+        outputs, _ = self.decoder_rnn(packed_input, hidden)
+
+        # process outputs
+        padded_outputs = rnn_utils.pad_packed_sequence(outputs, batch_first=True)[0]
+        padded_outputs = padded_outputs.contiguous()
+        _,reversed_idx = torch.sort(sorted_idx)
+        padded_outputs = padded_outputs[reversed_idx]
+        b,s,_ = padded_outputs.size()
+
+        # project outputs to vocab
+        logp = nn.functional.log_softmax(self.outputs2vocab(padded_outputs.view(-1, padded_outputs.size(2))), dim=-1)
+        logp = logp.view(b, s, self.embedding.num_embeddings)
+        return logp
+        '''
 
     def forward(self, input_sequence, length, decoder_input=None):
-        
+
         batch_size = input_sequence.size(0)
         sorted_lengths, sorted_idx = torch.sort(length, descending=True)
         input_sequence = input_sequence[sorted_idx]
@@ -357,13 +399,6 @@ class SentenceVAE(nn.Module):
         return logp, mean, logv, z
 
 
-    def _sample(self, dist, mode='greedy'):
-
-        if mode == 'greedy':
-            _, sample = torch.topk(dist, 1, dim=-1)
-        sample = sample.squeeze()
-
-        return sample
 
 
     
