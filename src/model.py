@@ -184,7 +184,7 @@ class Encoder(nn.Module):
         super(Encoder, self).__init__()
         self.num_layers = 2
         self.hidden_dim = hidden_dim
-        print(args.embed_dim)
+        # print(args.embed_dim)
         self.embedding = nn.Embedding(vocab_size, embed_dim)
         self.embedding.weight.data.copy_(args.pretrained_weight)
         self.gru = nn.GRU(embed_dim, self.hidden_dim, self.num_layers, batch_first=True, bidirectional=True)
@@ -330,7 +330,7 @@ class SentenceVAE(nn.Module):
             t = 0
             while(t < self.max_sequence_length-1):
                 if t == 0:
-                    input_sequence = Variable(torch.LongTensor([self.sos_idx] * batch_size), volatile=True)
+                    input_sequence = Variable(torch.LongTensor([self.eos_idx] * batch_size), volatile=True)
                     if torch.cuda.is_available():
                         input_sequence = input_sequence.cuda()
                         outputs        = outputs.cuda()
