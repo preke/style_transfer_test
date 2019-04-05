@@ -253,14 +253,14 @@ class SentenceVAE(nn.Module):
             raise ValueError()
 
         self.encoder_rnn = nn.GRU(embedding_size, hidden_size, num_layers=num_layers, bidirectional=self.bidirectional, batch_first=True)
-        self.decoder_rnn = nn.GRU(embedding_size, hidden_size, num_layers=num_layers, bidirectional=self.bidirectional, batch_first=True)
+        self.decoder_rnn = nn.GRU(embedding_size, hidden_size, num_layers=num_layers, bidirectional=False, batch_first=True)
 
         self.hidden_factor = (2 if bidirectional else 1) * num_layers
 
         self.hidden2mean   = nn.Linear(hidden_size * self.hidden_factor, latent_size)
         self.hidden2logv   = nn.Linear(hidden_size * self.hidden_factor, latent_size)
-        self.latent2hidden = nn.Linear(latent_size, hidden_size * self.hidden_factor)
-        self.outputs2vocab = nn.Linear(hidden_size * (2 if bidirectional else 1), vocab_size)
+        self.latent2hidden = nn.Linear(latent_size, hidden_size)
+        self.outputs2vocab = nn.Linear(hidden_size, vocab_size)
 
     
 
@@ -313,7 +313,7 @@ class SentenceVAE(nn.Module):
 
             # decoder forward pass
             outputs, _ = self.decoder_rnn(packed_input, hidden)
-            # print(outputs.sorted_indices)
+            
             
             # process outputs
             padded_outputs = rnn_utils.pad_packed_sequence(outputs, batch_first=True)[0]
@@ -366,8 +366,6 @@ class SentenceVAE(nn.Module):
 
         # ENCODER
         mean, logv, z = self.encoder(input_sequence, sorted_lengths, batch_size)
-        print(z.size())
-        time.sleep(100)
         # DECODER
         logp = self.decoder(z, batch_size, sorted_idx, sorted_lengths, decoder_input)
 
