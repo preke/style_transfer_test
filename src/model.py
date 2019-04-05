@@ -433,15 +433,15 @@ class SentenceVAE(nn.Module):
 
         return generations
 
-        def _save_sample(self, save_to, sample, running_seqs, t):
-            # select only still running
-            running_latest = save_to[running_seqs]
-            # update token at position t
-            running_latest[:,t] = sample.data
-            # save back
-            save_to[running_seqs] = running_latest
+    def _save_sample(self, save_to, sample, running_seqs, t):
+        # select only still running
+        running_latest = save_to[running_seqs]
+        # update token at position t
+        running_latest[:,t] = sample.data
+        # save back
+        save_to[running_seqs] = running_latest
 
-            return save_to
+        return save_to
 
 
 
