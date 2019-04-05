@@ -202,8 +202,8 @@ def kl_anneal_function(anneal_function, step, k, x0):
 def loss_fn(logp, target, length, mean, logv, anneal_function, step, k, x0, pad_idx):
     NLL      = torch.nn.NLLLoss(size_average = False, ignore_index=pad_idx)
     target   = target[:, :torch.max(length).data[0]].contiguous().view(-1)
-    logp     = logp.view(-1, logp.size(2))
-    NLL_loss = NLL(logp, target)
+    # logp     = logp.view(-1, logp.size(2))
+    logp     = logp.view(-1, logp.size(2))[:batch_size*torch.max(length), :]
 
     # KL Divergence
     KL_loss   = -0.5 * torch.sum(1 + logv - mean.pow(2) - logv.exp())
