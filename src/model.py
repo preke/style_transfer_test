@@ -425,9 +425,14 @@ class SentenceVAE(nn.Module):
             # print(running_seqs)
             
             if len(running_seqs) > 0:
-                input_sequence = input_sequence[running_seqs]
-                hidden = hidden[:, running_seqs]
-
+                try:
+                    input_sequence = input_sequence[running_seqs]
+                    hidden = hidden[:, running_seqs]
+                except:
+                    print(input_sequence)
+                    print(running_seqs)
+                    print(input_sequence.size())
+                    time.sleep(100)
                 running_seqs = torch.arange(0, len(running_seqs), out=self.tensor()).long()
 
             t += 1
