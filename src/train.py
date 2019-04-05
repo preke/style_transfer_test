@@ -172,6 +172,7 @@ def train_vae(train_iter, eval_iter, model, args):
             target     = feature[:, 1:]
             logp, mean, logv, z = model(_input, length, _input)
             
+            logp = torch.argmax(logp, dim=2)
             k = 0 
             for i in logp:
                 print(' '.join([args.index_2_word[int(j)] for j in i]))
