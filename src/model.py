@@ -297,7 +297,7 @@ class SentenceVAE(nn.Module):
 
         if decoder_input is not None:
             print(decoder_input) 
-            time.sleep(100)
+            time.sleep(30)
             input_embedding = self.embedding(decoder_input)
             # decoder input
             if self.word_dropout_rate > 0:
