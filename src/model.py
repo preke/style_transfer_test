@@ -255,8 +255,8 @@ class SentenceVAE(nn.Module):
 
         self.hidden_factor = (2 if bidirectional else 1) * num_layers
 
-        self.hidden2mean = nn.Linear(hidden_size * self.hidden_factor, latent_size)
-        self.hidden2logv = nn.Linear(hidden_size * self.hidden_factor, latent_size)
+        self.hidden2mean   = nn.Linear(hidden_size * self.hidden_factor, latent_size)
+        self.hidden2logv   = nn.Linear(hidden_size * self.hidden_factor, latent_size)
         self.latent2hidden = nn.Linear(latent_size, hidden_size * self.hidden_factor)
         self.outputs2vocab = nn.Linear(hidden_size * (2 if bidirectional else 1), vocab_size)
 
@@ -304,8 +304,8 @@ class SentenceVAE(nn.Module):
                     prob=prob.cuda()
                 prob[(decoder_input.data - self.sos_idx) * (decoder_input.data - self.pad_idx) == 0] = 1
                 decoder_decoder_input = decoder_input.clone()
-                decoder_input_sequence[prob < self.word_dropout_rate] = self.unk_idx
-                input_embedding = self.embedding(decoder_input_sequence)
+                decoder_decoder_input[prob < self.word_dropout_rate] = self.unk_idx
+                input_embedding = self.embedding(decoder_decoder_input)
             input_embedding = self.embedding_dropout(input_embedding)
             packed_input = rnn_utils.pack_padded_sequence(input_embedding, sorted_lengths.data.tolist(), batch_first=True)
 
@@ -344,46 +344,14 @@ class SentenceVAE(nn.Module):
             outputs = outputs.view(batch_size, self.max_sequence_length, self.embedding.num_embeddings)
             return outputs
 
-        '''
-        input_embedding = self.embedding(input_sequence)
-        hidden = self.latent2hidden(z)
+    def _sample(self, dist, mode='greedy'):
 
-        if self.bidirectional or self.num_layers > 1:
-            # unflatten hidden state
-            hidden = hidden.view(self.hidden_factor, batch_size, self.hidden_size)
-        else:
-            hidden = hidden.unsqueeze(0)
+        if mode == 'greedy':
+            _, sample = torch.topk(dist, 1, dim=-1)
+        sample = sample.squeeze()
 
-        # decoder input
-        if self.word_dropout_rate > 0:
-            print(self.word_dropout_rate)
-            # randomly replace decoder input with <unk>
-            prob = torch.rand(input_sequence.size())
-            if torch.cuda.is_available():
-                prob=prob.cuda()
-            prob[(input_sequence.data - self.sos_idx) * (input_sequence.data - self.pad_idx) == 0] = 1
-            decoder_input_sequence = input_sequence.clone()
-            decoder_input_sequence[prob < self.word_dropout_rate] = self.unk_idx
-            input_embedding = self.embedding(decoder_input_sequence)
-        input_embedding = self.embedding_dropout(input_embedding)
-        packed_input = rnn_utils.pack_padded_sequence(input_embedding, sorted_lengths.data.tolist(), batch_first=True)
-
-        # decoder forward pass
-        outputs, _ = self.decoder_rnn(packed_input, hidden)
-
-        # process outputs
-        padded_outputs = rnn_utils.pad_packed_sequence(outputs, batch_first=True)[0]
-        padded_outputs = padded_outputs.contiguous()
-        _,reversed_idx = torch.sort(sorted_idx)
-        padded_outputs = padded_outputs[reversed_idx]
-        b,s,_ = padded_outputs.size()
-
-        # project outputs to vocab
-        logp = nn.functional.log_softmax(self.outputs2vocab(padded_outputs.view(-1, padded_outputs.size(2))), dim=-1)
-        logp = logp.view(b, s, self.embedding.num_embeddings)
-        return logp
-        '''
-
+        return sample
+    
     def forward(self, input_sequence, length, decoder_input=None):
 
         batch_size = input_sequence.size(0)
