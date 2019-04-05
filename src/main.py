@@ -107,10 +107,10 @@ args.word_2_index = text_field.vocab.stoi # tuple of dict({word: index})
 args.index_2_word = text_field.vocab.itos # only list of words
 
 
-print(args.word_2_index['<SOS>'])
-print(args.word_2_index['<EOS>'])
-print(args.word_2_index['<PAD>'])
-print(args.word_2_index['<UNK>'])
+# print(args.word_2_index['<SOS>']) # 2
+# print(args.word_2_index['<EOS>']) # 3
+# print(args.word_2_index['<PAD>']) # 1
+# print(args.word_2_index['<UNK>']) # 0
 
 
 # Initial word embedding
