@@ -291,7 +291,7 @@ class SentenceVAE(nn.Module):
         hidden = self.latent2hidden(z)
         if self.bidirectional or self.num_layers > 1:
             # unflatten hidden state
-            hidden = hidden.view(self.hidden_factor, batch_size, self.hidden_size)
+            hidden = hidden.view(1, batch_size, self.hidden_size)
         else:
             hidden = hidden.unsqueeze(0)
 
