@@ -100,6 +100,10 @@ text_field.build_vocab(train_data, dev_data, min_freq=5)
 label_field.build_vocab(train_data)
 logger.info('Length of vocab is: ' + str(len(text_field.vocab)))
 
+print(args.word_2_index['<SOS>'])
+print(args.word_2_index['<EOS>'])
+print(args.word_2_index['<PAD>'])
+print(args.word_2_index['<UNK>'])
 
 args.vocab_size = len(text_field.vocab)
 args.word_2_index = text_field.vocab.stoi # tuple of dict({word: index})
