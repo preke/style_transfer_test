@@ -296,6 +296,8 @@ class SentenceVAE(nn.Module):
             hidden = hidden.unsqueeze(0)
 
         if decoder_input is not None:
+            print(decoder_input) 
+            time.sleep(100)
             input_embedding = self.embedding(decoder_input)
             # decoder input
             if self.word_dropout_rate > 0:
@@ -337,14 +339,11 @@ class SentenceVAE(nn.Module):
 
                 
                 input_sequence  = input_sequence.unsqueeze(1)
-                print(input_sequence)
                 input_embedding = self.embedding(input_sequence) # b * e
                 output, hidden  = self.decoder_rnn(input_embedding, hidden) 
                 logits          = self.outputs2vocab(output) # b * v
                 outputs[:,t,:]  = nn.functional.log_softmax(logits, dim=-1).squeeze(1)  # b * v 
                 input_sequence  = self._sample(logits)
-                print(input_sequence)
-                time.sleep(100)
                 t += 1
 
             outputs = outputs.view(batch_size, self.max_sequence_length, self.embedding.num_embeddings)
