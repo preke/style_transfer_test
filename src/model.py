@@ -389,6 +389,8 @@ class SentenceVAE(nn.Module):
         batch_size = input_sequence.size(0)
         sorted_lengths, sorted_idx = torch.sort(length, descending=True)
         input_sequence = input_sequence[sorted_idx]
+        if decoder_input:
+            decoder_input = decoder_input[sorted_idx]
 
         # ENCODER
         mean, logv, z = self.encoder(input_sequence, sorted_lengths, batch_size)
