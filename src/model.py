@@ -313,7 +313,7 @@ class SentenceVAE(nn.Module):
 
             # decoder forward pass
             outputs, _ = self.decoder_rnn(packed_input, hidden)
-            print(outputs.lengths)
+            print(outputs.sorted_indices)
             time.sleep(10)
             # process outputs
             padded_outputs = rnn_utils.pad_packed_sequence(outputs, batch_first=True)[0]
