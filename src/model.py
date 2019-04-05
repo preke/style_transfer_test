@@ -387,7 +387,7 @@ class SentenceVAE(nn.Module):
             # unflatten hidden state
             hidden = hidden.view(self.hidden_factor, batch_size, self.hidden_size)
 
-        hidden = hidden.unsqueeze(0)
+        # hidden = hidden.unsqueeze(0)
 
         # required for dynamic stopping of sentence generation
         sequence_idx     = torch.arange(0, batch_size, out=self.tensor()).long() # all idx of batch
