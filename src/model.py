@@ -429,8 +429,11 @@ class SentenceVAE(nn.Module):
                     input_sequence = input_sequence[running_seqs]
                     hidden = hidden[:, running_seqs]
                 except:
+                    print('-------')
                     print(input_sequence)
+                    print('*******')
                     print(running_seqs)
+                    print('+++++++')
                     print(input_sequence.size())
                     time.sleep(100)
                 running_seqs = torch.arange(0, len(running_seqs), out=self.tensor()).long()
