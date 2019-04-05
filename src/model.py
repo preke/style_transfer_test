@@ -314,27 +314,12 @@ class SentenceVAE(nn.Module):
             # decoder forward pass
             outputs, _ = self.decoder_rnn(packed_input, hidden)
             # print(outputs.sorted_indices)
-            time.sleep(10)
+            
             # process outputs
             padded_outputs = rnn_utils.pad_packed_sequence(outputs, batch_first=True)[0]
-            try:
-                print(padded_outputs.size())
-            except:
-                print('xxxx')
-                print(padded_outputs)
             padded_outputs = padded_outputs.contiguous()
             _,reversed_idx = torch.sort(sorted_idx)
-            print(sorted_idx)
-            print(reversed_idx)
-            time.sleep(10)
             padded_outputs = padded_outputs[reversed_idx]
-            try:
-                print(padded_outputs.size())
-            except:
-                print('xxxx')
-                print(padded_outputs)
-            
-            time.sleep(100)
             b,s,_ = padded_outputs.size()
 
             # project outputs to vocab
@@ -381,7 +366,8 @@ class SentenceVAE(nn.Module):
 
         # ENCODER
         mean, logv, z = self.encoder(input_sequence, sorted_lengths, batch_size)
-
+        print(z.size())
+        time.sleep(100)
         # DECODER
         logp = self.decoder(z, batch_size, sorted_idx, sorted_lengths, decoder_input)
 
