@@ -118,7 +118,7 @@ def show_reconstruct_results_S2S(dev_iter, model, args, cnt, avg_loss):
 
 def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
     model.eval()
-    writer = open('test_res/vae_epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.txt', 'w')
+    writer = open('res/vae_epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.txt', 'w')
     for batch in eval_iter:
         sample     = batch.text[0]
         length     = batch.text[1]
