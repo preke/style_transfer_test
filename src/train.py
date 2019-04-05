@@ -118,7 +118,7 @@ def show_reconstruct_results_S2S(dev_iter, model, args, cnt, avg_loss):
 
 def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
     model.eval()
-    writer = open('res/vae_epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.txt', 'w')
+    writer = open('test_res/vae_epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.txt', 'w')
     for batch in eval_iter:
         sample     = batch.text[0]
         length     = batch.text[1]
@@ -127,7 +127,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         feature    = Variable(sample)
         _input     = feature[:, :-1]
         target     = feature[:, 1:]
-        logp, mean, logv, z = model(_input, length)
+        logp, mean, logv, z = model(_input, length, _input)
         NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
             length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
 
@@ -205,7 +205,7 @@ def loss_fn(logp, target, length, mean, logv, anneal_function, step, k, x0, pad_
     # logp     = logp.view(-1, logp.size(2))
     batch_size = logp.size(0)
     logp     = logp.view(-1, logp.size(2))[:batch_size*torch.max(length), :]
-
+    NLL_loss = NLL(logp, target)
     # KL Divergence
     KL_loss   = -0.5 * torch.sum(1 + logv - mean.pow(2) - logv.exp())
     KL_weight = kl_anneal_function(anneal_function, step, k, x0)
