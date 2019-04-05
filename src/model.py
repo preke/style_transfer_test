@@ -335,7 +335,9 @@ class SentenceVAE(nn.Module):
                         input_sequence = input_sequence.cuda()
                         outputs        = outputs.cuda()
 
+                
                 input_sequence  = input_sequence.unsqueeze(1)
+                print(input_sequence)
                 input_embedding = self.embedding(input_sequence) # b * e
                 output, hidden  = self.decoder_rnn(input_embedding, hidden) 
                 logits          = self.outputs2vocab(output) # b * v
