@@ -144,11 +144,13 @@ class Decoder(nn.Module):
                 outputs = outputs.cuda()
             
             for i in range(1, self.max_len):
-                target = self.embed(target).squeeze(1)              
+                if i == 1:
+                    target = self.embed(target).squeeze(1)              
                 ctx = self.attention(enc_h, prev_s)                 
                 prev_s = self.decodercell(target, prev_s, ctx)
                 output = self.dec2word(prev_s)
                 outputs[:,i,:] = output
+                output = F.log_softmax(out.contiguous().view(-1, self.vocab_size))
                 target = output.topk(1)[1]
             
         return outputs
@@ -351,7 +353,7 @@ class SentenceVAE(nn.Module):
         sample = sample.squeeze()
 
         return sample
-    
+
     def forward(self, input_sequence, length, decoder_input=None):
 
         batch_size = input_sequence.size(0)
