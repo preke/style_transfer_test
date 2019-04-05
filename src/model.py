@@ -404,7 +404,10 @@ class SentenceVAE(nn.Module):
 
             input_sequence = input_sequence.unsqueeze(1)
             input_embedding = self.embedding(input_sequence)
+            print(input_embedding.size())
+            print(hidden.size())
             output, hidden = self.decoder_rnn(input_embedding, hidden)
+
             logits = self.outputs2vocab(output)
             input_sequence = self._sample(logits)
 
