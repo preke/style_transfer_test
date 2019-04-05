@@ -227,11 +227,11 @@ class SentenceVAE(nn.Module):
         super().__init__()
         self.tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.Tensor
         self.max_sequence_length = max_sequence_length
-        self.sos_idx = sos_idx
-        self.eos_idx = eos_idx
-        self.pad_idx = pad_idx
-        self.unk_idx = unk_idx
-
+        self.sos_idx     = sos_idx
+        self.eos_idx     = eos_idx
+        self.pad_idx     = pad_idx
+        self.unk_idx     = unk_idx
+        self.vocab_size  = vocab_size
         self.latent_size = latent_size
 
         self.rnn_type = rnn_type
