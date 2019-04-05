@@ -432,7 +432,7 @@ class SentenceVAE(nn.Module):
 
             t += 1
 
-        return generations
+        return generations, z
 
     def _save_sample(self, save_to, sample, running_seqs, t):
         # select only still running
