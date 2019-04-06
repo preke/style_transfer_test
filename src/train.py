@@ -139,13 +139,13 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         # # print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f"
         # #         %(loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
 
-        # k = 0 
-        # for i in logp:
-        #     writer.write(' '.join([args.index_2_word[int(l)] for l in sample[k]]))
-        #     writer.write('\n=============\n')
-        #     writer.write(' '.join([args.index_2_word[int(j)] for j in i]))
-        #     writer.write('\n************\n\n')
-        #     k = k + 1
+        k = 0 
+        for i in generations:
+            writer.write(' '.join([args.index_2_word[int(l)] for l in sample[k]]))
+            writer.write('\n=============\n')
+            writer.write(' '.join([args.index_2_word[int(j)] for j in i]))
+            writer.write('\n************\n\n')
+            k = k + 1
     writer.close()
 
 

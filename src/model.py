@@ -402,11 +402,11 @@ class SentenceVAE(nn.Module):
             if t == 0:
                 input_sequence = to_var(torch.Tensor(batch_size).fill_(self.sos_idx).long())
 
-            input_sequence = input_sequence.unsqueeze(1)
+            input_sequence  = input_sequence.unsqueeze(1)
             input_embedding = self.embedding(input_sequence)
-            output, hidden = self.decoder_rnn(input_embedding, hidden)
+            output, hidden  = self.decoder_rnn(input_embedding, hidden)
 
-            logits = self.outputs2vocab(output)
+            logits         = self.outputs2vocab(output)
             input_sequence = self._sample(logits)
 
             # save next input
