@@ -380,7 +380,12 @@ class SentenceVAE(nn.Module):
 
     def inference(self, z):
 
-        batch_size = z.size(0)
+        if z is None:
+            batch_size = 4
+            z = to_var(torch.randn([batch_size, self.latent_size]))
+        else:
+            batch_size = z.size(0)
+        
         hidden = self.latent2hidden(z)
 
         if self.bidirectional or self.num_layers > 1:
