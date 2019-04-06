@@ -333,12 +333,12 @@ class SentenceVAE(nn.Module):
             return logp
         else: 
         
-            input_sequence  = Variable(torch.zeros(batch_size, self.max_sequence_length, self.vocab_size))
+            input_sequence  = Variable(torch.LongTensor(torch.zeros(batch_size, self.max_sequence_length, self.vocab_size))).cuda()
             input_embedding = self.embedding(input_sequence) # b * s * e
             input_embedding = self.embedding_dropout(input_embedding)
             outputs, _ = self.decoder_rnn(input_embedding, hidden)
             outputs = nn.functional.log_softmax(self.outputs2vocab(outputs.view(-1, outputs.size(2))), dim=-1)
-            
+
             # t = 0
             # while(t < self.max_sequence_length-1):
             #     if t == 0:
