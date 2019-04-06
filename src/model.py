@@ -434,7 +434,8 @@ class SentenceVAE(nn.Module):
                 print('mmmmmmmmmm')
                 input_sequence = input_sequence[running_seqs]
                 hidden = hidden[:, running_seqs]
-                    
+                print(input_sequence)
+                print('xxxxxxxxx')    
                 running_seqs = torch.arange(0, len(running_seqs), out=self.tensor()).long()
 
             t += 1
