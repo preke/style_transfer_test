@@ -340,7 +340,7 @@ class SentenceVAE(nn.Module):
             input_embedding = self.embedding_dropout(input_embedding)
             outputs, _ = self.decoder_rnn(input_embedding, hidden)
             print(outputs.size())
-            outputs = nn.functional.log_softmax(self.outputs2vocab(outputs.view(-1, outputs.size(2))), dim=-1)
+            outputs = nn.functional.log_softmax(self.outputs2vocab(outputs.contiguous().view(-1, outputs.size(2))), dim=-1)
 
             # t = 0
             # while(t < self.max_sequence_length-1):
