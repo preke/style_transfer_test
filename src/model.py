@@ -378,7 +378,7 @@ class SentenceVAE(nn.Module):
 
         return logp, mean, logv, z
 
-    def inference(self, z):
+    def inference(self, z=None):
 
         if z is None:
             batch_size = 4
