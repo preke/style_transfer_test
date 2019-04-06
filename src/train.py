@@ -128,10 +128,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         _input     = feature[:, :-1]
         target     = feature[:, 1:]
         
-        _, mean, logv, z = model(_input, length)
-        generations, z = model.inference()
-        print(generations)
-        generations, z = model.inference(z)
+        logp, mean, logv, z = model(_input, length)
         # print(generations)
         # NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
         #     length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
@@ -141,7 +138,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         # #         %(loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
 
         k = 0 
-        for i in generations:
+        for i in logp:
             writer.write(' '.join([args.index_2_word[int(l)] for l in sample[k]]))
             writer.write('\n=============\n')
             writer.write(' '.join([args.index_2_word[int(j)] for j in i]))

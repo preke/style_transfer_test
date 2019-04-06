@@ -301,16 +301,18 @@ class SentenceVAE(nn.Module):
         if decoder_input is not None:
             input_embedding = self.embedding(decoder_input)
             # decoder input
-            if self.word_dropout_rate > 0:
-                # print(self.word_dropout_rate)
-                # randomly replace decoder input with <unk>
-                prob = torch.rand(decoder_input.size())
-                if torch.cuda.is_available():
-                    prob=prob.cuda()
-                prob[(decoder_input.data - self.sos_idx) * (decoder_input.data - self.pad_idx) == 0] = 1
-                decoder_decoder_input = decoder_input.clone()
-                decoder_decoder_input[prob < self.word_dropout_rate] = self.unk_idx
-                input_embedding = self.embedding(decoder_decoder_input)
+            
+            # if self.word_dropout_rate > 0:
+            #     # print(self.word_dropout_rate)
+            #     # randomly replace decoder input with <unk>
+            #     prob = torch.rand(decoder_input.size())
+            #     if torch.cuda.is_available():
+            #         prob=prob.cuda()
+            #     prob[(decoder_input.data - self.sos_idx) * (decoder_input.data - self.pad_idx) == 0] = 1
+            #     decoder_decoder_input = decoder_input.clone()
+            #     decoder_decoder_input[prob < self.word_dropout_rate] = self.unk_idx
+            #     input_embedding = self.embedding(decoder_decoder_input)
+            
             input_embedding = self.embedding_dropout(input_embedding)
             packed_input = rnn_utils.pack_padded_sequence(input_embedding, sorted_lengths.data.tolist(), batch_first=True)
 
@@ -330,29 +332,32 @@ class SentenceVAE(nn.Module):
             logp = logp.view(b, s, self.embedding.num_embeddings)
             return logp
         else: 
-            '''
-            outputs = Variable(torch.ones(batch_size, self.max_sequence_length, self.vocab_size))
-            t = 0
-            while(t < self.max_sequence_length-1):
-                if t == 0:
-                    input_sequence = Variable(torch.LongTensor([self.sos_idx] * batch_size), volatile=True)
-                    if torch.cuda.is_available():
-                        input_sequence = input_sequence.cuda()
-                        outputs        = outputs.cuda()
+        
+            input_sequence  = Variable(torch.zeros(batch_size, self.max_sequence_length, self.vocab_size))
+            input_embedding = self.embedding(input_sequence) # b * s * e
+            input_embedding = self.embedding_dropout(input_embedding)
+            outputs, _ = self.decoder_rnn(input_embedding, hidden)
+            outputs = nn.functional.log_softmax(self.outputs2vocab(outputs.view(-1, outputs.size(2))), dim=-1)
+            
+            # t = 0
+            # while(t < self.max_sequence_length-1):
+            #     if t == 0:
+            #         input_sequence = Variable(torch.LongTensor([self.sos_idx] * batch_size), volatile=True)
+            #         if torch.cuda.is_available():
+            #             input_sequence = input_sequence.cuda()
+            #             outputs        = outputs.cuda()
 
                 
-                input_sequence  = input_sequence.unsqueeze(1)
-                input_embedding = self.embedding(input_sequence) # b * e
-                output, hidden  = self.decoder_rnn(input_embedding, hidden) 
-                logits          = self.outputs2vocab(output) # b * v
-                outputs[:,t,:]  = nn.functional.log_softmax(logits, dim=-1).squeeze(1)  # b * v 
-                input_sequence  = self._sample(logits)
-                t += 1
+            #     input_sequence  = input_sequence.unsqueeze(1)
+            #     input_embedding = self.embedding(input_sequence) # b * e
+            #     output, hidden  = self.decoder_rnn(input_embedding, hidden) 
+            #     logits          = self.outputs2vocab(output) # b * v
+            #     outputs[:,t,:]  = nn.functional.log_softmax(logits, dim=-1).squeeze(1)  # b * v 
+            #     input_sequence  = self._sample(logits)
+            #     t += 1
 
             outputs = outputs.view(batch_size, self.max_sequence_length, self.embedding.num_embeddings)
             return outputs
-            '''
-            return 0
 
     def _sample(self, dist, mode='greedy'):
 
