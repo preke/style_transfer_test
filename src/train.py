@@ -167,9 +167,9 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
     #             %(Total_loss.data[0]/cnt, Total_NLL_loss.data[0]/cnt, Total_KL_loss.data[0]/cnt))
     
     # logger.info('\n')
-    # save_path = 'saved_model/Loss_%9.4f_.pt'%(Total_loss.data[0])
-    # torch.save(model.state_dict(), save_path)
-    # logger.info('Save model to ' + save_path)
+    save_path = 'saved_model/epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.pt'
+    torch.save(model.state_dict(), save_path)
+    logger.info('Save model to ' + save_path)
 
 
 def train_vae(train_iter, eval_iter, model, args):
