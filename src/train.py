@@ -142,8 +142,8 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         loss = (NLL_loss + KL_weight * KL_loss)/batch_size
         
         Total_loss     += loss
-        Total_NLL_loss += NLL_loss
-        Total_KL_loss  += KL_loss
+        Total_NLL_loss += NLL_loss/batch_size
+        Total_KL_loss  += KL_loss/batch_size
 
         logp = torch.argmax(logp, dim=2)
         # print(generations)
@@ -211,7 +211,7 @@ def train_vae(train_iter, eval_iter, model, args):
             if iteration % args.print_every == 0:
                 print("Train: Batch %04d, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f"
                 %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
-            if step % 200 == 0:
+            if step % 2000 == 0:
                 eval_vae(model, eval_iter, args, step, cur_epoch, iteration)
 
                 model.train()
