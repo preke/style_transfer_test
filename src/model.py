@@ -300,7 +300,6 @@ class SentenceVAE(nn.Module):
         if decoder_input is not None:
             input_embedding = self.embedding(decoder_input)
             # decoder input
-            
             input_embedding = self.embedding_dropout(input_embedding)
             packed_input = rnn_utils.pack_padded_sequence(input_embedding, sorted_lengths.data.tolist(), batch_first=True)
 

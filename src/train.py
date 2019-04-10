@@ -122,8 +122,8 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
     Total_loss     = torch.tensor(0.0).cuda()
     Total_NLL_loss = torch.tensor(0.0).cuda()
     Total_KL_loss  = torch.tensor(0.0).cuda()
-    cnt = 0
-    writer = open('res/vae_epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.txt', 'w')
+    cnt            = 0
+    writer         = open('res/vae_epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.txt', 'w')
     for batch in eval_iter:
         cnt += 1
         sample     = batch.text[0]
@@ -137,13 +137,13 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         logp, mean, logv, z = model(_input, length, _input)
         
         
-        NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
-            length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
-        loss = (NLL_loss + KL_weight * KL_loss)/batch_size
+        # NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
+        #     length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
+        # loss = (NLL_loss + KL_weight * KL_loss)/batch_size
         
-        Total_loss     += loss
-        Total_NLL_loss += NLL_loss/batch_size
-        Total_KL_loss  += KL_loss/batch_size
+        # Total_loss     += loss
+        # Total_NLL_loss += NLL_loss/batch_size
+        # Total_KL_loss  += KL_loss/batch_size
 
         logp = torch.argmax(logp, dim=2)
         # print(generations)
@@ -163,13 +163,13 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
     writer.close()
     logger.info('\n')
     
-    print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f"
-                %(Total_loss.data[0]/cnt, Total_NLL_loss.data[0]/cnt, Total_KL_loss.data[0]/cnt))
+    # print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f"
+    #             %(Total_loss.data[0]/cnt, Total_NLL_loss.data[0]/cnt, Total_KL_loss.data[0]/cnt))
     
-    logger.info('\n')
-    save_path = 'saved_model/Loss_%9.4f_.pt'%(Total_loss.data[0])
-    torch.save(model.state_dict(), save_path)
-    logger.info('Save model to ' + save_path)
+    # logger.info('\n')
+    # save_path = 'saved_model/Loss_%9.4f_.pt'%(Total_loss.data[0])
+    # torch.save(model.state_dict(), save_path)
+    # logger.info('Save model to ' + save_path)
 
 
 def train_vae(train_iter, eval_iter, model, args):
@@ -211,7 +211,7 @@ def train_vae(train_iter, eval_iter, model, args):
             if iteration % args.print_every == 0:
                 print("Train: Batch %04d, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f"
                 %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
-            if step % 200 == 0:
+            if step % 2000 == 0:
                 eval_vae(model, eval_iter, args, step, cur_epoch, iteration)
 
                 model.train()
