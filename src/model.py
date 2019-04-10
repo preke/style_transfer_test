@@ -7,14 +7,13 @@ import numpy as np
 import torch.nn.utils.rnn as rnn_utils
 from utils import *
 import time
+
 # logging
 import logging
 import logging.config
 config_file = 'logging.ini'
 logging.config.fileConfig(config_file, disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
-
-
 
 
 class Attention(nn.Module):
@@ -301,18 +300,6 @@ class SentenceVAE(nn.Module):
         if decoder_input is not None:
             input_embedding = self.embedding(decoder_input)
             # decoder input
-            
-            # if self.word_dropout_rate > 0:
-            #     # print(self.word_dropout_rate)
-            #     # randomly replace decoder input with <unk>
-            #     prob = torch.rand(decoder_input.size())
-            #     if torch.cuda.is_available():
-            #         prob=prob.cuda()
-            #     prob[(decoder_input.data - self.sos_idx) * (decoder_input.data - self.pad_idx) == 0] = 1
-            #     decoder_decoder_input = decoder_input.clone()
-            #     decoder_decoder_input[prob < self.word_dropout_rate] = self.unk_idx
-            #     input_embedding = self.embedding(decoder_decoder_input)
-            
             input_embedding = self.embedding_dropout(input_embedding)
             packed_input = rnn_utils.pack_padded_sequence(input_embedding, sorted_lengths.data.tolist(), batch_first=True)
 
@@ -331,8 +318,7 @@ class SentenceVAE(nn.Module):
             logp = nn.functional.log_softmax(self.outputs2vocab(padded_outputs.view(-1, padded_outputs.size(2))), dim=-1)
             logp = logp.view(b, s, self.embedding.num_embeddings)
             return logp
-        else: 
-        
+        else:         
             input_sequence  = Variable(torch.zeros(batch_size, self.max_sequence_length).long()).cuda()
             input_embedding = self.embedding(input_sequence) # b * s * e
             input_embedding = self.embedding_dropout(input_embedding)
