@@ -122,9 +122,10 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
     Total_loss     = torch.tensor(0.0).cuda()
     Total_NLL_loss = torch.tensor(0.0).cuda()
     Total_KL_loss  = torch.tensor(0.0).cuda()
-
+    cnt = 0
     writer = open('res/vae_epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.txt', 'w')
     for batch in eval_iter:
+        cnt += 1
         sample     = batch.text[0]
         length     = batch.text[1]
         length     = torch.add(length, -1)
@@ -160,8 +161,12 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
             writer.write('\n************\n\n')
             k = k + 1
     writer.close()
+    logger.info('\n')
+    
     print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f"
-                %(Total_loss.data[0], Total_NLL_loss.data[0], Total_KL_loss.data[0]))
+                %(Total_loss.data[0]/cnt, Total_NLL_loss.data[0]/cnt, Total_KL_loss.data[0]/cnt))
+    
+    logger.info('\n')
     save_path = 'saved_model/Loss_%9.4f_.pt'%(Total_loss.data[0])
     torch.save(model.state_dict(), save_path)
     logger.info('Save model to ' + save_path)
