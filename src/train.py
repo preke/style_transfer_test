@@ -114,8 +114,6 @@ def show_reconstruct_results_S2S(dev_iter, model, args, cnt, avg_loss):
         cnt_batch += 1
     writer.close()
 
-
-
 def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
     model.eval()
     
