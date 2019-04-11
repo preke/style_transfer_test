@@ -93,7 +93,7 @@ def eval_S2S(dev_iter, model):
     avg_loss /= size
     logger.info('Evaluation: eva_loss: {:.6f}\n'.format(avg_loss))
 
-    save_path = 'saved_model/eva_loss_{:.4f}_.pt'.format(avg_loss)
+    save_path = 'saved_model/s2s_loss_{:.4f}_.pt'.format(avg_loss)
     torch.save(model.state_dict(), save_path)
     logger.info('Save model to ' + save_path)
 
