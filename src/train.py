@@ -134,7 +134,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         _input     = feature[:, :-1]
         target     = feature[:, 1:]
         
-        logp, mean, logv, z = model(_input, length, _input)
+        logp, mean, logv, z = model(_input, length)
         
         
         # NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
