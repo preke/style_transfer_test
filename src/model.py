@@ -151,8 +151,8 @@ class Decoder(nn.Module):
                 ctx            = self.attention(enc_h, prev_s)                 
                 prev_s         = self.decodercell(target, prev_s, ctx)
                 output         = self.dec2word(prev_s)
-                output         = F.log_softmax(output.contiguous().view(-1, self.vocab_size))
-                print(output.size())
+                # output         = F.log_softmax(output.contiguous().view(-1, self.vocab_size))
+                # print(output.size())
                 outputs[:,i,:] = output
                 target         = output.topk(1)[1]
             
