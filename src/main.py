@@ -124,66 +124,66 @@ args.pretrained_weight = get_pretrained_word_embed(GLOVE_PATH, args, text_field)
 
 
 # Build s2s model and train
-# s2s_model = Seq2Seq(src_nword=args.vocab_size, 
-#                     trg_nword=args.vocab_size, 
-#                     num_layer=2, 
-#                     embed_dim=args.embed_dim, 
-#                     hidden_dim=args.hidden_dim, 
-#                     max_len=args.max_length, 
-#                     trg_soi=args.word_2_index['<SOS>'], 
-#                     args=args)
-# s2s_model.cuda()
-# if args.snapshot is not None:
-#     logger.info('Load model from' + args.snapshot)
-#     s2s_model.load_state_dict(torch.load(args.snapshot))
-#     show_reconstruct_results(dev_iter, s2s_model, args)
-#     # if not os.path.exists(small_pos):
-#     #     preprocess_pos_neg(small_pos_path, small_pos)
-#     #     preprocess_pos_neg(small_neg_path, small_neg)
-#     # pos_iter, neg_iter = load_pos_neg_data(small_pos, small_neg, text_field, args)
-#     # style_transfer(pos_iter, neg_iter, rgl_net, args)
-# else:
-#     logger.info('Train model begin...')
-
-#     try:
-#         train_S2S(train_iter=train_iter, dev_iter=dev_iter, train_data=train_data, model=s2s_model, args=args)
-#     except KeyboardInterrupt:
-#         print(traceback.print_exc())
-#         print('\n' + '-' * 89)
-#         print('Exiting from training early')
-
-
-# Build Sentence_VAE model and train
-
-vae_model = SentenceVAE(
-    vocab_size          = args.vocab_size,
-    sos_idx             = args.word_2_index['<SOS>'],
-    eos_idx             = args.word_2_index['<EOS>'],
-    pad_idx             = args.word_2_index['<PAD>'],
-    unk_idx             = args.word_2_index['<UNK>'],
-    max_sequence_length = args.max_length,
-    embedding_size      = args.embed_dim,
-    rnn_type            = args.rnn_type,
-    hidden_size         = args.hidden_dim,
-    word_dropout        = args.word_dropout,
-    embedding_dropout   = args.embedding_dropout,
-    latent_size         = args.latent_size,
-    num_layers          = args.num_layers,
-    bidirectional       = args.bidirectional,
-    pre_embedding       = args.pretrained_weight)
-
-vae_model = vae_model.cuda()
+s2s_model = Seq2Seq(src_nword  = args.vocab_size, 
+                    trg_nword  = args.vocab_size, 
+                    num_layer  = 2, 
+                    embed_dim  = args.embed_dim, 
+                    hidden_dim = args.hidden_dim, 
+                    max_len    = args.max_length, 
+                    trg_soi    = args.word_2_index['<SOS>'], 
+                    args       = args)
+s2s_model.cuda()
 if args.snapshot is not None:
     logger.info('Load model from' + args.snapshot)
-    vae_model.load_state_dict(torch.load(args.snapshot))
+    s2s_model.load_state_dict(torch.load(args.snapshot))
+    show_reconstruct_results(dev_iter, s2s_model, args)
+    # if not os.path.exists(small_pos):
+    #     preprocess_pos_neg(small_pos_path, small_pos)
+    #     preprocess_pos_neg(small_neg_path, small_neg)
+    # pos_iter, neg_iter = load_pos_neg_data(small_pos, small_neg, text_field, args)
+    # style_transfer(pos_iter, neg_iter, rgl_net, args)
 else:
     logger.info('Train model begin...')
+
     try:
-        train_vae(train_iter=train_iter, eval_iter=dev_iter, model=vae_model, args=args)
+        train_S2S(train_iter=train_iter, dev_iter=dev_iter, train_data=train_data, model=s2s_model, args=args)
     except KeyboardInterrupt:
         print(traceback.print_exc())
         print('\n' + '-' * 89)
         print('Exiting from training early')
+
+
+# Build Sentence_VAE model and train
+
+# vae_model = SentenceVAE(
+#     vocab_size          = args.vocab_size,
+#     sos_idx             = args.word_2_index['<SOS>'],
+#     eos_idx             = args.word_2_index['<EOS>'],
+#     pad_idx             = args.word_2_index['<PAD>'],
+#     unk_idx             = args.word_2_index['<UNK>'],
+#     max_sequence_length = args.max_length,
+#     embedding_size      = args.embed_dim,
+#     rnn_type            = args.rnn_type,
+#     hidden_size         = args.hidden_dim,
+#     word_dropout        = args.word_dropout,
+#     embedding_dropout   = args.embedding_dropout,
+#     latent_size         = args.latent_size,
+#     num_layers          = args.num_layers,
+#     bidirectional       = args.bidirectional,
+#     pre_embedding       = args.pretrained_weight)
+
+# vae_model = vae_model.cuda()
+# if args.snapshot is not None:
+#     logger.info('Load model from' + args.snapshot)
+#     vae_model.load_state_dict(torch.load(args.snapshot))
+# else:
+#     logger.info('Train model begin...')
+#     try:
+#         train_vae(train_iter=train_iter, eval_iter=dev_iter, model=vae_model, args=args)
+#     except KeyboardInterrupt:
+#         print(traceback.print_exc())
+#         print('\n' + '-' * 89)
+#         print('Exiting from training early')
 
 
 

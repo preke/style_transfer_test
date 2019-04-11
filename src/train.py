@@ -91,7 +91,12 @@ def eval_S2S(dev_iter, model):
         size += len(sample)
 
     avg_loss /= size
-    logger.info('Evaluation - Train_loss:{:.6f}, eva_loss: {:.6f}\n'.format(reconstruct_loss, avg_loss))
+    logger.info('Evaluation: eva_loss: {:.6f}\n'.format(avg_loss))
+
+    save_path = 'saved_model/eva_loss_{:.4f}_.pt'.format(avg_loss)
+    torch.save(model.state_dict(), save_path)
+    logger.info('Save model to ' + save_path)
+
     return avg_loss
 
 def show_reconstruct_results_S2S(dev_iter, model, args, cnt, avg_loss):
