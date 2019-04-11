@@ -150,9 +150,6 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         # NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
         #     length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
 
-        
-        
-
         k = 0 
         for i in logp:
             writer.write(' '.join([args.index_2_word[int(l)] for l in sample[k]]))
