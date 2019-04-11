@@ -148,12 +148,13 @@ class Decoder(nn.Module):
             for i in range(1, self.max_len):
                 if i == 1:
                     target = self.embed(target).squeeze(1)              
-                ctx = self.attention(enc_h, prev_s)                 
-                prev_s = self.decodercell(target, prev_s, ctx)
-                output = self.dec2word(prev_s)
-                output = F.log_softmax(output.contiguous().view(-1, self.vocab_size))
+                ctx            = self.attention(enc_h, prev_s)                 
+                prev_s         = self.decodercell(target, prev_s, ctx)
+                output         = self.dec2word(prev_s)
+                output         = F.log_softmax(output.contiguous().view(-1, self.vocab_size))
+                print(output.size())
                 outputs[:,i,:] = output
-                target = output.topk(1)[1]
+                target         = output.topk(1)[1]
             
         return outputs
 
