@@ -145,9 +145,8 @@ class Decoder(nn.Module):
                 outputs = outputs.cuda()
             
             for i in range(1, self.max_len):
-                if i == 1:
-                    target = self.embed(target).squeeze(1)   
-                print(target)
+                # if i == 1:
+                target = self.embed(target).squeeze(1)   
                 ctx            = self.attention(enc_h, prev_s)                 
                 prev_s         = self.decodercell(target, prev_s, ctx)
                 output         = self.dec2word(prev_s)
