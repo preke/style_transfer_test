@@ -147,7 +147,7 @@ class Decoder(nn.Module):
             for i in range(1, self.max_len):
                 if i == 1:
                     target = self.embed(target).squeeze(1)   
-                print(type(target))
+                print(target)
                 ctx            = self.attention(enc_h, prev_s)                 
                 prev_s         = self.decodercell(target, prev_s, ctx)
                 output         = self.dec2word(prev_s)
