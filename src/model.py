@@ -117,7 +117,6 @@ class Decoder(nn.Module):
         enc_h  : B x S x 2*H 
         prev_s : B x H
         '''
-
         if target is not None:
             batch_size, target_len = target.size(0), target.size(1)
             
@@ -128,8 +127,8 @@ class Decoder(nn.Module):
 
             target = self.embed(target)  
             for i in range(target_len):
-                ctx = self.attention(enc_h, prev_s)                     
-                prev_s = self.decodercell(target[:, i], prev_s, ctx)
+                ctx          = self.attention(enc_h, prev_s)                     
+                prev_s       = self.decodercell(target[:, i], prev_s, ctx)
                 dec_h[:,i,:] = prev_s
 
             outputs = self.dec2word(dec_h)
@@ -147,11 +146,12 @@ class Decoder(nn.Module):
             
             for i in range(1, self.max_len):
                 if i == 1:
-                    target = self.embed(target).squeeze(1)              
+                    target = self.embed(target).squeeze(1)   
+                print type(target)           
                 ctx            = self.attention(enc_h, prev_s)                 
                 prev_s         = self.decodercell(target, prev_s, ctx)
                 output         = self.dec2word(prev_s)
-                # output         = F.log_softmax(output.contiguous().view(-1, self.vocab_size))
+                output         = F.log_softmax(output.contiguous().view(-1, self.vocab_size))
                 # print(output.size())
                 outputs[:,i,:] = output
                 target         = output.topk(1)[1]
