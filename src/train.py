@@ -68,6 +68,9 @@ def train_S2S(train_iter, dev_iter, train_data, model, args):
                 avg_loss = eval_S2S(dev_iter, model)
             if cnt_batch % 1000 == 0:                
                 show_reconstruct_results_S2S(dev_iter, model, args, cnt_batch, avg_loss)
+                save_path = 'saved_model/s2s_loss_{:.4f}_.pt'.format(avg_loss)
+                torch.save(model.state_dict(), save_path)
+                logger.info('Save model to ' + save_path)
             cnt_batch += 1
         cnt_epoch += 1
 
@@ -93,9 +96,7 @@ def eval_S2S(dev_iter, model):
     avg_loss /= size
     logger.info('Evaluation: eva_loss: {:.6f}\n'.format(avg_loss))
 
-    save_path = 'saved_model/s2s_loss_{:.4f}_.pt'.format(avg_loss)
-    torch.save(model.state_dict(), save_path)
-    logger.info('Save model to ' + save_path)
+    
 
     return avg_loss
 
