@@ -100,7 +100,7 @@ def eval_S2S(dev_iter, model):
 
     return avg_loss
 
-def show_reconstruct_results_S2S(dev_iter, model, args, cnt, avg_loss):
+def show_reconstruct_results_S2S(dev_iter, model, args, cnt=0, avg_loss=0.0):
     writer = open('res/s2s_logs_'+str(cnt) + '__' + str(float(avg_loss)) + '_.txt', 'w')
     cnt_batch = 0
     for batch in dev_iter:
