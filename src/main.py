@@ -136,7 +136,7 @@ s2s_model.cuda()
 if args.snapshot is not None:
     logger.info('Load model from' + args.snapshot)
     s2s_model.load_state_dict(torch.load(args.snapshot))
-    show_reconstruct_results(dev_iter, s2s_model, args)
+    show_reconstruct_results_S2S(dev_iter, s2s_model, args)
     # if not os.path.exists(small_pos):
     #     preprocess_pos_neg(small_pos_path, small_pos)
     #     preprocess_pos_neg(small_neg_path, small_neg)
