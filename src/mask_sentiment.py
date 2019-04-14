@@ -25,24 +25,29 @@ def mask():
     neg_lex_list = []
     with open(POS_LEXICON, 'r') as reader:
         for line in reader:
-            pos_lex_list.append(line)
+            pos_lex_list.append(lancaster_stemmer.stem(line))
 
     with open(NEG_LEXICON, 'r') as reader:
         for line in reader:
-            neg_lex_list.append(line)
+            neg_lex_list.append(lancaster_stemmer.stem(line))
 
-    pos_lex_list = set(pos_lex_list)
-    neg_lex_list = set(neg_lex_list)
+    pos_lex_set = set(pos_lex_list)
+    neg_lex_set = set(neg_lex_list)
 
     # test_writer = open(MASKED_TEST_PATH, 'w')
     with open(TEST_PATH, 'r') as reader:
         for line in reader:
             list_ = line.split('\t')
-            word_list = word_tokenize(list_[1])
-            print([lancaster_stemmer.stem(i) for i in word_list])
-            break
-            # test_writer.
+            if list_[0] == '1': # positive
+                word_list = word_tokenize(list_[1])
+                word_list = [lancaster_stemmer.stem(i) for i in word_list]
+                word_list = ['<PAD>' if i in pos_lex_set else i for i in word_list]
+            if list_[0] == '0': # negative
+                word_list = word_tokenize(list_[1])
+                word_list = [lancaster_stemmer.stem(i) for i in word_list]
+                word_list = ['<PAD>' if i in neg_lex_set else i for i in word_list]
 
+            print(word_list)
 
 mask()
 
