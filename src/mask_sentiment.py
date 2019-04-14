@@ -19,6 +19,16 @@ TEST_PATH         = '../data/amazon_test.tsv'
 MASKED_TRAIN_PATH = '../data/mask_amazon_train.tsv'
 MASKED_TEST_PATH  = '../data/mask_amazon_test.tsv'
 
+def punctuate(text):
+    ans = ""
+    english_punctuations = [',', '.', ':', ';', '?', '(', ')', '[', ']', '&', '!', '*', '@', '#', '$', '%', '\'']
+    for letter in text:
+        if letter in english_punctuations:
+            ans += ' '
+        else:
+            ans += letter
+    return ans
+
 def mask():
     lancaster_stemmer = LancasterStemmer()
     pos_lex_list = []
@@ -39,14 +49,11 @@ def mask():
     with open(TEST_PATH, 'r') as reader:
         for line in reader:
             list_ = line.split('\t')
+            word_list = word_tokenize(punctuate(list_[1]))
             if list_[0] == '1': # positive
-                word_list = word_tokenize(list_[1])
-                word_list = [lancaster_stemmer.stem(i) for i in word_list]
-                word_list = ['<PAD>' if i in pos_lex_set else i for i in word_list]
+                word_list = ['<PAD>' if lancaster_stemmer.stem(i) in pos_lex_set else i for i in word_list]
             if list_[0] == '0': # negative
-                word_list = word_tokenize(list_[1])
-                word_list = [lancaster_stemmer.stem(i) for i in word_list]
-                word_list = ['<PAD>' if i in neg_lex_set else i for i in word_list]
+                word_list = ['<PAD>' if lancaster_stemmer.stem(i) in neg_lex_set else i for i in word_list]
 
             print(word_list)
 
