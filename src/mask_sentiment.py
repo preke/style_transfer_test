@@ -57,6 +57,19 @@ def mask():
             # print(word_list)
     test_writer.close()
 
+    train_writer = open(MASKED_TRAIN_PATH, 'w')
+    with open(TRAIN_PATH, 'r') as reader:
+        for line in reader:
+            list_ = line.split('\t')
+            word_list = word_tokenize(punctuate(list_[1]))
+            if list_[0] == '1': # positive
+                word_list = ['<PAD>' if lancaster_stemmer.stem(i) in pos_lex_set else i for i in word_list]
+            if list_[0] == '0': # negative
+                word_list = ['<PAD>' if lancaster_stemmer.stem(i) in neg_lex_set else i for i in word_list]
+            train_writer.write(list_[0] + '\t' + ' '.join(word_list) + '\n')
+            # print(word_list)
+    train_writer.close()
+
 mask()
 
 
