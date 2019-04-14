@@ -19,6 +19,7 @@ MASKED_TRAIN_PATH = '../data/mask_amazon_train.tsv'
 MASKED_TEST_PATH  = '../data/mask_amazon_test.tsv'
 
 def mask():
+    lancaster_stemmer = LancasterStemmer()
     pos_lex_list = []
     neg_lex_list = []
     with open(POS_LEXICON, 'r') as reader:
@@ -36,7 +37,7 @@ def mask():
     with open(TEST_PATH, 'r') as reader:
         for line in reader:
             list_ = line.split('\t')
-            print(list_[1].split(' '))
+            print([ lancaster_stemmer.stem(i) for i in list_[1].split(' ')])
             break
             # test_writer.
 
