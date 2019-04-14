@@ -40,4 +40,6 @@ def mask():
             # test_writer.
 
 
+mask()
+
 
