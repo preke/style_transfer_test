@@ -13,8 +13,8 @@ import logging.config
 POS_LEXICON       = '../data/positive.txt'
 NEG_LEXICON       = '../data/negative.txt'
 
-TRAIN_PATH        = '../data/amazon_train.tsv'
-TEST_PATH         = '../data/amazon_test.tsv'
+TRAIN_PATH        = '../data/amazon.train'
+TEST_PATH         = '../data/amazon.test'
 MASKED_TRAIN_PATH = '../data/mask_amazon_train.tsv'
 MASKED_TEST_PATH  = '../data/mask_amazon_test.tsv'
 
@@ -43,29 +43,27 @@ def mask():
     pos_lex_set = set(pos_lex_list)
     neg_lex_set = set(neg_lex_list)
 
-    # test_writer = open(MASKED_TEST_PATH, 'w')
-    test_writer = open('../data/amazon.test', 'w')
+    test_writer = open(MASKED_TEST_PATH, 'w')
     with open(TEST_PATH, 'r') as reader:
         for line in reader:
             list_ = line.split('\t')
             word_list = word_tokenize(punctuate(list_[1]))
-            # if list_[0] == '1': # positive
-            #     word_list = ['<PAD>' if lancaster_stemmer.stem(i) in pos_lex_set else i for i in word_list]
-            # if list_[0] == '0': # negative
-            #     word_list = ['<PAD>' if lancaster_stemmer.stem(i) in neg_lex_set else i for i in word_list]
+            if list_[0] == '1': # positive
+                word_list = ['<PAD>' if lancaster_stemmer.stem(i) in pos_lex_set else i for i in word_list]
+            if list_[0] == '0': # negative
+                word_list = ['<PAD>' if lancaster_stemmer.stem(i) in neg_lex_set else i for i in word_list]
             test_writer.write(list_[0] + '\t' + ' '.join(word_list) + '\n')
     test_writer.close()
 
-    # train_writer = open(MASKED_TRAIN_PATH, 'w')
-    train_writer = open('../data/amazon.train', 'w')
+    train_writer = open(MASKED_TRAIN_PATH, 'w')
     with open(TRAIN_PATH, 'r') as reader:
         for line in reader:
             list_ = line.split('\t')
             word_list = word_tokenize(punctuate(list_[1]))
-            # if list_[0] == '1': # positive
-            #     word_list = ['<PAD>' if lancaster_stemmer.stem(i) in pos_lex_set else i for i in word_list]
-            # if list_[0] == '0': # negative
-            #     word_list = ['<PAD>' if lancaster_stemmer.stem(i) in neg_lex_set else i for i in word_list]
+            if list_[0] == '1': # positive
+                word_list = ['<PAD>' if lancaster_stemmer.stem(i) in pos_lex_set else i for i in word_list]
+            if list_[0] == '0': # negative
+                word_list = ['<PAD>' if lancaster_stemmer.stem(i) in neg_lex_set else i for i in word_list]
             train_writer.write(list_[0] + '\t' + ' '.join(word_list) + '\n')
     train_writer.close()
 
