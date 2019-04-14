@@ -25,11 +25,11 @@ def mask():
     neg_lex_list = []
     with open(POS_LEXICON, 'r') as reader:
         for line in reader:
-            pos_lex_list.append(lancaster_stemmer.stem(line))
+            pos_lex_list.append(lancaster_stemmer.stem(word_tokenize(line)[0]))
 
     with open(NEG_LEXICON, 'r') as reader:
         for line in reader:
-            neg_lex_list.append(lancaster_stemmer.stem(line))
+            neg_lex_list.append(lancaster_stemmer.stem(word_tokenize(line)[0]))
 
     pos_lex_set = set(pos_lex_list)
     neg_lex_set = set(neg_lex_list)
