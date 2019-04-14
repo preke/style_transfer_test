@@ -53,7 +53,7 @@ def mask():
                 word_list = ['<PAD>' if lancaster_stemmer.stem(i) in pos_lex_set else i for i in word_list]
             if list_[0] == '0': # negative
                 word_list = ['<PAD>' if lancaster_stemmer.stem(i) in neg_lex_set else i for i in word_list]
-            test_writer.write(list_[0] + '\t' + ' '.join(word_list))
+            test_writer.write(list_[0] + '\t' + ' '.join(word_list) + '\n')
             # print(word_list)
     test_writer.close()
 
