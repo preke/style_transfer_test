@@ -41,11 +41,11 @@ def mask():
             if list_[0] == '1': # positive
                 word_list = word_tokenize(list_[1])
                 word_list = [lancaster_stemmer.stem(i) for i in word_list]
-                word_list = ['<PAD>' if i in pos_lex_set else i for i in word_list]
+                word_list = ['<PAD>' if i in pos_lex_set for i in word_list else i]
             if list_[0] == '0': # negative
                 word_list = word_tokenize(list_[1])
                 word_list = [lancaster_stemmer.stem(i) for i in word_list]
-                word_list = ['<PAD>' if i in neg_lex_set else i for i in word_list]
+                word_list = ['<PAD>' if i in neg_lex_set for i in word_list else i]
 
             print(word_list)
 
