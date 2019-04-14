@@ -6,6 +6,7 @@ import nltk
 from nltk.stem.porter import PorterStemmer
 from nltk.stem.lancaster import LancasterStemmer
 from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
 import logging
 import logging.config
 
@@ -37,7 +38,8 @@ def mask():
     with open(TEST_PATH, 'r') as reader:
         for line in reader:
             list_ = line.split('\t')
-            print([ lancaster_stemmer.stem(i) for i in list_[1].split(' ')])
+            word_list = word_tokenize(list_[1])
+            print([lancaster_stemmer.stem(i) for i in word_list])
             break
             # test_writer.
 
