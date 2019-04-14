@@ -21,7 +21,7 @@ MASKED_TEST_PATH  = '../data/mask_amazon_test.tsv'
 
 def punctuate(text):
     ans = ""
-    english_punctuations = [',', '.', ':', ';', '?', '(', ')', '[', ']', '&', '!', '*', '@', '#', '$', '%', '\'']
+    english_punctuations = [',', '.', ':', ';', '?', '(', ')', '[', ']', '&', '!', '*', '@', '#', '$', '%']
     for letter in text:
         if letter in english_punctuations:
             ans += ' '
