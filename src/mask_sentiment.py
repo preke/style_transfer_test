@@ -44,8 +44,7 @@ def mask():
     pos_lex_set = set(pos_lex_list)
     neg_lex_set = set(neg_lex_list)
 
-    # test_writer = open(MASKED_TEST_PATH, 'w')
-    # print(pos_lex_set)
+    test_writer = open(MASKED_TEST_PATH, 'w')
     with open(TEST_PATH, 'r') as reader:
         for line in reader:
             list_ = line.split('\t')
@@ -54,8 +53,9 @@ def mask():
                 word_list = ['<PAD>' if lancaster_stemmer.stem(i) in pos_lex_set else i for i in word_list]
             if list_[0] == '0': # negative
                 word_list = ['<PAD>' if lancaster_stemmer.stem(i) in neg_lex_set else i for i in word_list]
-
-            print(word_list)
+            test_writer.write(list_[0] + '\t' + ' '.join(word_list))
+            # print(word_list)
+    test_writer.close()
 
 mask()
 
