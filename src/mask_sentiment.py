@@ -35,7 +35,8 @@ def mask():
     # test_writer = open(MASKED_TEST_PATH, 'w')
     with open(TEST_PATH, 'r') as reader:
         for line in reader:
-            print(line.split('\t'))
+            list_ = line.split('\t')
+            print(list_[1].split(' '))
             break
             # test_writer.
 
