@@ -37,7 +37,7 @@ def gen_iter(path, text_field, label_field, args):
     then convert it into a iterator
     return TabularDataset and iterator
     '''
-    tmp_data = data.TabularDataset(path=path, format='tsv', fields=[('label', label_field), ('text', text_field)])
+    tmp_data = data.TabularDataset(path = path, format='tsv', fields=[('label', label_field), ('text', text_field)])
     tmp_iter = data.BucketIterator(tmp_data,
                     batch_size        = args.batch_size,
                     sort_key          = lambda x: len(x.text),
@@ -56,11 +56,6 @@ def load_data(train_path, dev_path, args):
     logger.info('Loading Validation data begin...')
     dev_data, dev_iter = gen_iter(dev_path, text_field, label_field, args)
     return text_field, label_field, train_data, train_iter, dev_data, dev_iter
-
-
-
-
-
 
 
 def gen_pos_neg_iter(path, text_field, args):

@@ -49,9 +49,9 @@ def mask():
             list_ = line.split('\t')
             word_list = word_tokenize(punctuate(list_[1]))
             if list_[0] == '1': # positive
-                word_list = ['<PAD>' if lancaster_stemmer.stem(i) in pos_lex_set else i for i in word_list]
+                word_list = ['<UNK>' if lancaster_stemmer.stem(i) in pos_lex_set else i for i in word_list]
             if list_[0] == '0': # negative
-                word_list = ['<PAD>' if lancaster_stemmer.stem(i) in neg_lex_set else i for i in word_list]
+                word_list = ['<UNK>' if lancaster_stemmer.stem(i) in neg_lex_set else i for i in word_list]
             test_writer.write(list_[0] + '\t' + ' '.join(word_list) + '\n')
     test_writer.close()
 
@@ -61,9 +61,9 @@ def mask():
             list_ = line.split('\t')
             word_list = word_tokenize(punctuate(list_[1]))
             if list_[0] == '1': # positive
-                word_list = ['<PAD>' if lancaster_stemmer.stem(i) in pos_lex_set else i for i in word_list]
+                word_list = ['<UNK>' if lancaster_stemmer.stem(i) in pos_lex_set else i for i in word_list]
             if list_[0] == '0': # negative
-                word_list = ['<PAD>' if lancaster_stemmer.stem(i) in neg_lex_set else i for i in word_list]
+                word_list = ['<UNK>' if lancaster_stemmer.stem(i) in neg_lex_set else i for i in word_list]
             train_writer.write(list_[0] + '\t' + ' '.join(word_list) + '\n')
     train_writer.close()
 
