@@ -62,11 +62,8 @@ class SentenceVAE(nn.Module):
 
     def encoder(self, input_sequence, sorted_lengths, batch_size):
         input_embedding = self.embedding(input_sequence)
-
         packed_input = rnn_utils.pack_padded_sequence(input_embedding, sorted_lengths.data.tolist(), batch_first=True)
-
         _, hidden = self.encoder_rnn(packed_input)
-
         if self.bidirectional or self.num_layers > 1:
             # flatten hidden state
             hidden = hidden.view(batch_size, self.hidden_size*self.hidden_factor)

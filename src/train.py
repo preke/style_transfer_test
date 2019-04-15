@@ -47,17 +47,21 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         feature    = Variable(sample)
         _input     = feature[:, :-1]
         target     = feature[:, 1:]
+
+        mask_sample  = batch.mask_text[0]
+        mask_feature = Variable(mask_sample)
+        mask_input   = mask_feature[:, :-1]
         
-        logp, mean, logv, z = model(_input, length)
+        logp, mean, logv, z = model(_input, length, mask_input)
         
         
-        # NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
-        #     length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
-        # loss = (NLL_loss + KL_weight * KL_loss)/batch_size
+        NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
+            length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
+        loss = (NLL_loss + KL_weight * KL_loss)/batch_size
         
-        # Total_loss     += loss
-        # Total_NLL_loss += NLL_loss/batch_size
-        # Total_KL_loss  += KL_loss/batch_size
+        Total_loss     += loss
+        Total_NLL_loss += NLL_loss/batch_size
+        Total_KL_loss  += KL_loss/batch_size
 
         logp = torch.argmax(logp, dim=2)
         # print(generations)
@@ -74,8 +78,8 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
     writer.close()
     logger.info('\n')
     
-    # print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f"
-    #             %(Total_loss.data[0]/cnt, Total_NLL_loss.data[0]/cnt, Total_KL_loss.data[0]/cnt))
+    print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f"
+                %(Total_loss.data[0]/cnt, Total_NLL_loss.data[0]/cnt, Total_KL_loss.data[0]/cnt))
     
     # logger.info('\n')
     save_path = 'saved_model/epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.pt'
@@ -99,15 +103,15 @@ def train_vae(train_iter, eval_iter, model, args):
         for batch in train_iter:    
             
             # Forward pass
-            sample     = batch.text[0]
-            length     = batch.text[1]
-            length     = torch.add(length, -1)
-            batch_size = len(sample)
-            feature    = Variable(sample)
-            _input     = feature[:, :-1]
-            target     = feature[:, 1:]
-            logp, mean, logv, z = model(_input, length, _input)
+            sample       = batch.text[0]
+            length       = batch.text[1]
+            length       = torch.add(length, -1)
+            batch_size   = len(sample)
+            feature      = Variable(sample)
+            _input       = feature[:, :-1]
+            target       = feature[:, 1:]
             
+            logp, mean, logv, z = model(_input, length, _input)
             # loss calculation
             NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
                 length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
