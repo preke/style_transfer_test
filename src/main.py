@@ -72,11 +72,11 @@ args.print_every       = 100
 
 
 # Preprocess
-if not os.path.exists(TEST_PRE_PATH):
-    logger.info('Preprocessing begin...')
-    preprocess_write(TEST_PATH, TEST_PRE_PATH)
-else:
-    logger.info('No need to preprocess!')
+# if not os.path.exists(TEST_PRE_PATH):
+#     logger.info('Preprocessing begin...')
+#     preprocess_write(TEST_PATH, TEST_PRE_PATH)
+# else:
+#     logger.info('No need to preprocess!')
 
 
 # Load data
