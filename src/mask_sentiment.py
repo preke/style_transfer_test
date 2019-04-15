@@ -67,7 +67,7 @@ def mask():
             if list_[0] == '0': # negative
                 word_list = ['<UNK>' if lancaster_stemmer.stem(i) in neg_lex_set else i for i in word_list]
             # train_writer.write(list_[0] + '\t' + ' '.join(word_list) + '\n')
-            test_writer.write(list_[0] + '\t' + ' '.join(tmp_wlist) + '\t' + ' '.join(word_list) + '\n')
+            train_writer.write(list_[0] + '\t' + ' '.join(tmp_wlist) + '\t' + ' '.join(word_list) + '\n')
     train_writer.close()
 
 
