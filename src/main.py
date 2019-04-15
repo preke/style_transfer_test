@@ -108,7 +108,7 @@ args.pretrained_weight = get_pretrained_word_embed(GLOVE_PATH, args, text_field)
 # python main.py -snapshot RGLModel/epoch_10_batch_254000_acc_85.2_bestmodel.pt
 
 
-Build Sentence_VAE model and train
+# Build Sentence_VAE model and train
 
 vae_model = SentenceVAE(
     vocab_size          = args.vocab_size,
