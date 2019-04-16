@@ -17,6 +17,9 @@ logging.config.fileConfig(config_file, disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
 
+POS_LEXICON       = '../data/positive.txt'
+NEG_LEXICON       = '../data/negative.txt'
+
 class Preprocess(object):
     def __init__(self):
         self.english_punctuations = [',', '.', ':', ';', '?', '(', ')', '[', ']', '&', '!', '*', '@', '#', '$', '%', '\'']  
@@ -31,12 +34,10 @@ class Preprocess(object):
                 ans += letter
         return ans
 
-    def stem_and_stop_removal(self, text):
+    def stop_removal(self, text):
         text = self.punctuate(text)
         word_list = word_tokenize(text)
         word_list = [i for i in word_list if i not in self.stop]
-        # lancaster_stemmer = LancasterStemmer()
-        # word_list = [lancaster_stemmer.stem(i) for i in word_list]
         return word_list
 
 def get_wmd(list_pos, list_neg, pos_sentence_list, neg_sentence_list):
@@ -73,20 +74,39 @@ def read_in_data():
         for line in reader:
             pos_sentence_list.append(line)
             new_line = line.lower()
-            new_line = preprocess.stem_and_stop_removal(new_line)
-            # new_line = [w for w in new_line if w not in stop_words]
+            new_line = preprocess.stop_removal(new_line)
             list_pos.append(new_line)
 
     with open('../data/neg.txt', 'r') as reader:
         for line in reader:
             neg_sentence_list.append(line)
             new_line = line.lower()
-            new_line = preprocess.stem_and_stop_removal(new_line)
-            # new_line = [w for w in new_line if w not in stop_words]
+            new_line = preprocess.stop_removal(new_line)
             list_neg.append(new_line)
 
     return list_pos, list_neg, pos_sentence_list, neg_sentence_list
 
+
+
+def mask_sentiment(list_pos, list_neg):
+    lancaster_stemmer = LancasterStemmer()
+    pos_lex_list = []
+    neg_lex_list = []
+    with open(POS_LEXICON, 'r') as reader:
+        for line in reader:
+            pos_lex_list.append(lancaster_stemmer.stem(word_tokenize(line)[0]))
+
+    with open(NEG_LEXICON, 'r') as reader:
+        for line in reader:
+            neg_lex_list.append(lancaster_stemmer.stem(word_tokenize(line)[0]))
+
+    pos_lex_set = set(pos_lex_list)
+    neg_lex_set = set(neg_lex_list)
+
+    list_pos_new = [['<neutral>' if lancaster_stemmer.stem(i) in pos_lex_set else i for i in word_list] for word_list in list_pos]
+    list_neg_new = [['<neutral>' if lancaster_stemmer.stem(i) in neg_lex_set else i for i in word_list] for word_list in list_neg]
+        
+    return list_pos_new, list_neg_new
 
 def mask_style_words(list_pos, list_neg):
     preprocess = Preprocess()
@@ -137,7 +157,7 @@ def mask_style_words(list_pos, list_neg):
 
 if __name__ == '__main__':    
     list_pos, list_neg, pos_sentence_list, neg_sentence_list = read_in_data()
-    pos_words_set, neg_words_set, list_pos_new,list_neg_new = mask_style_words(list_pos, list_neg)
+    list_pos_new, list_neg_new = mask_sentiment(list_pos, list_neg)
     get_wmd(list_pos_new, list_neg_new, pos_sentence_list, neg_sentence_list)
 
 
