@@ -48,7 +48,7 @@ def get_wmd(list_pos, list_neg, pos_sentence_list, neg_sentence_list):
     sim_matrix = []
     for i in range(10):
         sim_matrix.append([])
-        for j in range(20000):
+        for j in range(len(list_neg)):
             sim_matrix[i].append(w2v_model.wmdistance(list_pos[i], list_neg[j]))
 
     logger.info('sim_matrix_shape: %d, %d\n' %(len(sim_matrix), len(sim_matrix[0])))
