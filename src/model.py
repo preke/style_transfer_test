@@ -268,9 +268,7 @@ class CNN_Text(nn.Module):
 
     def forward(self, x):
         x = self.embed(x)  # (N, W, D)
-        
-        if self.args.static:
-            x = Variable(x)
+        x = Variable(x)
 
         x     = x.unsqueeze(1)  # (N, Ci, W, D)
         x     = [F.relu(conv(x)).squeeze(3) for conv in self.convs1]  # [(N, Co, W), ...]*len(Ks)
