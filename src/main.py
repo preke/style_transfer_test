@@ -84,6 +84,7 @@ args.save_interval = 500
 args.log_interval  = 1
 args.cuda          = True
 args.epochs        = 10
+args.save_best     = True
 
 # Load data
 logger.info('Loading data begin...')
