@@ -248,9 +248,9 @@ class CNN_Text(nn.Module):
         super(CNN_Text, self).__init__()
         self.args = args
         
-        V = args.embed_num
+        V = args.vocab_size
         D = args.embed_dim
-        C = args.class_num
+        C = args.num_class
         Ci = 1
         Co = args.kernel_num
         Ks = args.kernel_sizes
