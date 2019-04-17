@@ -82,8 +82,7 @@ args.early_stop    = 1000
 args.test_interval = 100
 args.save_interval = 500
 args.log_interval  = 1
-
-
+args.cuda          = True
 
 
 # Load data
