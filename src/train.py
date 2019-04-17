@@ -110,8 +110,12 @@ def train_vae(train_iter, eval_iter, model, args):
             feature      = Variable(sample)
             _input       = feature[:, :-1]
             target       = feature[:, 1:]
+
+            mask_sample  = batch.mask_text[0]
+            mask_feature = Variable(mask_sample)
+            mask_input   = mask_feature[:, :-1]
             
-            logp, mean, logv, z = model(_input, length, _input)
+            logp, mean, logv, z = model(mask_input, length, _input)
             # loss calculation
             NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
                 length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
