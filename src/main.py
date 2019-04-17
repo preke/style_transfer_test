@@ -80,7 +80,7 @@ args.cnn_lr        = 0.001
 args.early_stop    = 1000
 
 args.test_interval = 100
-args.save_interval = 500
+args.save_interval = 1000
 args.log_interval  = 1
 args.cuda          = True
 args.epochs        = 10
