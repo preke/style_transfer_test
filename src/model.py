@@ -248,18 +248,18 @@ class CNN_Text(nn.Module):
         super(CNN_Text, self).__init__()
         self.args = args
         
-        V = args.vocab_size
-        D = args.embed_dim
-        C = args.num_class
+        V  = args.vocab_size
+        D  = args.embed_dim
+        C  = args.num_class
         Ci = 1
         Co = args.kernel_num
         Ks = args.kernel_sizes
 
-        self.embed = nn.Embedding(V, D)
+        self.embed   = nn.Embedding(V, D)
         self.embed.weight.data.copy_(args.pretrained_weight)
-        self.convs1 = nn.ModuleList([nn.Conv2d(Ci, Co, (K, D)) for K in Ks])
+        self.convs1  = nn.ModuleList([nn.Conv2d(Ci, Co, (K, D)) for K in Ks])
         self.dropout = nn.Dropout(args.dropout)
-        self.fc1 = nn.Linear(len(Ks)*Co, C)
+        self.fc1     = nn.Linear(len(Ks)*Co, C)
 
     def conv_and_pool(self, x, conv):
         x = F.relu(conv(x)).squeeze(3)  # (N, Co, W)

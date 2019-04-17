@@ -176,6 +176,7 @@ def train_cnn(train_iter, dev_iter, model, args):
             # if args.cuda:
             #     feature, target = feature.cuda(), target.cuda()
             optimizer.zero_grad()
+            print(feature)
             logit = model(feature)
             loss = F.cross_entropy(logit, target)
             loss.backward()
