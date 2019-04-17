@@ -256,7 +256,7 @@ class CNN_Text(nn.Module):
         Ks = args.kernel_sizes
 
         self.embed = nn.Embedding(V, D)
-        self.embedding.weight.data.copy_(args.pretrained_weight)
+        self.embed.weight.data.copy_(args.pretrained_weight)
         self.convs1 = nn.ModuleList([nn.Conv2d(Ci, Co, (K, D)) for K in Ks])
         self.dropout = nn.Dropout(args.dropout)
         self.fc1 = nn.Linear(len(Ks)*Co, C)
@@ -272,11 +272,11 @@ class CNN_Text(nn.Module):
         if self.args.static:
             x = Variable(x)
 
-        x = x.unsqueeze(1)  # (N, Ci, W, D)
-        x = [F.relu(conv(x)).squeeze(3) for conv in self.convs1]  # [(N, Co, W), ...]*len(Ks)
-        x = [F.max_pool1d(i, i.size(2)).squeeze(2) for i in x]  # [(N, Co), ...]*len(Ks)
-        x = torch.cat(x, 1)
-        x = self.dropout(x)  # (N, len(Ks)*Co)
+        x     = x.unsqueeze(1)  # (N, Ci, W, D)
+        x     = [F.relu(conv(x)).squeeze(3) for conv in self.convs1]  # [(N, Co, W), ...]*len(Ks)
+        x     = [F.max_pool1d(i, i.size(2)).squeeze(2) for i in x]  # [(N, Co), ...]*len(Ks)
+        x     = torch.cat(x, 1)
+        x     = self.dropout(x)  # (N, len(Ks)*Co)
         logit = self.fc1(x)  # (N, C)
         return logit
 

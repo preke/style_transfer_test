@@ -51,12 +51,9 @@ args.hidden_dim   = 100
 args.batch_size   = 32
 args.lr           = 0.0001
 args.num_epoch    = 200
-args.num_class    = 2
 args.max_length   = 20
 args.device       = torch.device('cuda')
-args.kernel_num   = 100
-args.kernel_sizes = '3,4,5'
-args.kernel_sizes = [int(k) for k in args.kernel_sizes.split(',')]
+
 args.dropout      = 0.1
 
 
@@ -70,6 +67,22 @@ args.anneal_function   = 'logistic'
 args.k                 = 0.0025
 args.x0                = 2500
 args.print_every       = 100
+
+
+## CNN classifier
+
+args.kernel_num    = 100
+args.kernel_sizes  = '3,4,5'
+args.kernel_sizes  = [int(k) for k in args.kernel_sizes.split(',')]
+args.cnn_save_dir  = './cnn/'
+args.num_class     = 2
+args.cnn_lr        = 0.001
+args.early_stop    = 1000
+
+args.test_interval = 100
+args.save_interval = 500
+args.log_interval  = 1
+
 
 
 
