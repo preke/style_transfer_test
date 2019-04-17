@@ -160,7 +160,7 @@ def loss_fn(logp, target, length, mean, logv, anneal_function, step, k, x0, pad_
 
 
 
-def train_cnn(train_iter=train_iter, dev_iter=dev_iter, model=cnn, args=args):
+def train_cnn(train_iter, dev_iter, model, args):
     if args.cuda:
         model.cuda()
     parameters = list(filter(lambda p: p.requires_grad, model.parameters()))
