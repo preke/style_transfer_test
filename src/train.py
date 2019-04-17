@@ -196,12 +196,12 @@ def train_cnn(train_iter, dev_iter, model, args):
                     best_acc = dev_acc
                     last_step = steps
                     if args.save_best:
-                        save_cnn(model, args.save_dir, 'best', steps)
+                        save_cnn(model, args.cnn_save_dir, 'best', steps)
                 else:
                     if steps - last_step >= args.early_stop:
                         print('early stop by {} steps.'.format(args.early_stop))
             elif steps % args.save_interval == 0:
-                save(model, args.save_dir, 'snapshot', steps)
+                save(model, args.cnn_save_dir, 'snapshot', steps)
 
 
 def eval_cnn(data_iter, model, args):
