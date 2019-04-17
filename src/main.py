@@ -23,8 +23,8 @@ logger = logging.getLogger(__name__)
 # self define
 from utils import preprocess_write, get_pretrained_word_embed, preprocess_pos_neg
 from dataload import load_data, load_pos_neg_data
-from model import SentenceVAE
-from train import train_vae
+from model import SentenceVAE, CNN_Text
+from train import train_vae, train_cnn
 
 
 # paths
@@ -40,6 +40,7 @@ parser = argparse.ArgumentParser(description='')
 parser.add_argument('-test', action='store_true', default=False, help='train or test')
 parser.add_argument('-train', action='store_true', default=True, help='train or test')
 parser.add_argument('-snapshot', type=str, default=None, help='filename of model snapshot [default: None]')
+parser.add_argument('-cnn_snapshot', type=str, default=None, help='filename of model snapshot [default: None]')
 args = parser.parse_args()
 
 
@@ -71,13 +72,6 @@ args.x0                = 2500
 args.print_every       = 100
 
 
-# Preprocess
-# if not os.path.exists(TEST_PRE_PATH):
-#     logger.info('Preprocessing begin...')
-#     preprocess_write(TEST_PATH, TEST_PRE_PATH)
-# else:
-#     logger.info('No need to preprocess!')
-
 
 # Load data
 logger.info('Loading data begin...')
@@ -104,41 +98,53 @@ logger.info('Getting pre-trained word embedding ...')
 args.pretrained_weight = get_pretrained_word_embed(GLOVE_PATH, args, text_field)  
 
 
-
-# python main.py -snapshot RGLModel/epoch_10_batch_254000_acc_85.2_bestmodel.pt
-
-
-# Build Sentence_VAE model and train
-
-vae_model = SentenceVAE(
-    vocab_size          = args.vocab_size,
-    sos_idx             = args.word_2_index['<SOS>'],
-    eos_idx             = args.word_2_index['<EOS>'],
-    pad_idx             = args.word_2_index['<PAD>'],
-    unk_idx             = args.word_2_index['<UNK>'],
-    max_sequence_length = args.max_length,
-    embedding_size      = args.embed_dim,
-    rnn_type            = args.rnn_type,
-    hidden_size         = args.hidden_dim,
-    word_dropout        = args.word_dropout,
-    embedding_dropout   = args.embedding_dropout,
-    latent_size         = args.latent_size,
-    num_layers          = args.num_layers,
-    bidirectional       = args.bidirectional,
-    pre_embedding       = args.pretrained_weight)
-
-vae_model = vae_model.cuda()
-if args.snapshot is not None:
-    logger.info('Load model from' + args.snapshot)
-    vae_model.load_state_dict(torch.load(args.snapshot))
+## Build CNN sentiment classifier
+cnn = model.CNN_Text(args)
+if args.cnn_snapshot is not None:
+    logger.info('Load CNN classifier from' + args.cnn_snapshot)
+    cnn.load_state_dict(torch.load(args.cnn_snapshot))
 else:
-    logger.info('Train model begin...')
+    logger.info('Train CNN classifier begin...')
     try:
-        train_vae(train_iter=train_iter, eval_iter=dev_iter, model=vae_model, args=args)
+        train_cnn(train_iter=train_iter, eval_iter=dev_iter, model=cnn, args=args)
     except KeyboardInterrupt:
         print(traceback.print_exc())
         print('\n' + '-' * 89)
         print('Exiting from training early')
+
+
+
+# Build Sentence_VAE model and train
+
+# vae_model = SentenceVAE(
+#     vocab_size          = args.vocab_size,
+#     sos_idx             = args.word_2_index['<SOS>'],
+#     eos_idx             = args.word_2_index['<EOS>'],
+#     pad_idx             = args.word_2_index['<PAD>'],
+#     unk_idx             = args.word_2_index['<UNK>'],
+#     max_sequence_length = args.max_length,
+#     embedding_size      = args.embed_dim,
+#     rnn_type            = args.rnn_type,
+#     hidden_size         = args.hidden_dim,
+#     word_dropout        = args.word_dropout,
+#     embedding_dropout   = args.embedding_dropout,
+#     latent_size         = args.latent_size,
+#     num_layers          = args.num_layers,
+#     bidirectional       = args.bidirectional,
+#     pre_embedding       = args.pretrained_weight)
+
+# vae_model = vae_model.cuda()
+# if args.snapshot is not None:
+#     logger.info('Load model from' + args.snapshot)
+#     vae_model.load_state_dict(torch.load(args.snapshot))
+# else:
+#     logger.info('Train model begin...')
+#     try:
+#         train_vae(train_iter=train_iter, eval_iter=dev_iter, model=vae_model, args=args)
+#     except KeyboardInterrupt:
+#         print(traceback.print_exc())
+#         print('\n' + '-' * 89)
+#         print('Exiting from training early')
 
 
 
