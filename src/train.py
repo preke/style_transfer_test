@@ -44,6 +44,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
     Total_KL_loss  = torch.tensor(0.0).cuda()
     cnt            = 0
     writer         = open('res/vae_epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.txt', 'w')
+    BLEU_score = []
     for batch in eval_iter:
         cnt += 1
         sample     = batch.text[0]
@@ -87,9 +88,11 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
             writer.write(' '.join(target))
             writer.write('\n************\n\n')
             k = k + 1
-        print('Testing BLEU SCORE:\n')
-        print(get_bleu(pred_list, target_list))
+        
+        BLEU_score.append(get_bleu(pred_list, target_list))
     writer.close()
+    
+    logger.info('Evaluation BLEU_score is:%s\n'%(np.avg(BLEU_score)))
     logger.info('\n')
     
     print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f"
