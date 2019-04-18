@@ -88,7 +88,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
             writer.write('\n************\n\n')
             k = k + 1
         print('Testing BLEU SCORE:\n')
-        print(bleu(pred_list, target_list))
+        print(get_bleu(pred_list, target_list))
     writer.close()
     logger.info('\n')
     
