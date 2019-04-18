@@ -92,7 +92,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         BLEU_score.append(get_bleu(pred_list, target_list))
     writer.close()
     
-    logger.info('Evaluation BLEU_score is:%s\n'%(np.avg(BLEU_score)))
+    logger.info('Evaluation BLEU_score is:%s\n'%(np.mean(BLEU_score)))
     logger.info('\n')
     
     print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f"
