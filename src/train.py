@@ -76,6 +76,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
 
         k = 0 
         pred_list = []
+        target_list = []
         for i in logp:
             pred   = [args.index_2_word[int(l)] for l in sample[k]]
             target = [args.index_2_word[int(j)] for j in i]
