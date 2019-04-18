@@ -17,6 +17,12 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 import traceback
 
+
+
+from collections import Counter
+import math
+
+import subprocess
 import dataload
 from model import *
 from utils import preprocess_write, get_pretrained_word_embed, preprocess_pos_neg
@@ -69,12 +75,19 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         #     length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
 
         k = 0 
+        pred_list = []
         for i in logp:
-            writer.write(' '.join([args.index_2_word[int(l)] for l in sample[k]]))
+            pred   = [args.index_2_word[int(l)] for l in sample[k]]
+            target = [args.index_2_word[int(j)] for j in i]
+            pred_list.append(pred)
+            target_list.append(target)
+            writer.write(' '.join(pred))
             writer.write('\n=============\n')
-            writer.write(' '.join([args.index_2_word[int(j)] for j in i]))
+            writer.write(' '.join(target))
             writer.write('\n************\n\n')
             k = k + 1
+        print('Testing BLEU SCORE:\n')
+        print(bleu(pred_list, target_list))
     writer.close()
     logger.info('\n')
     
@@ -241,14 +254,83 @@ def save_cnn(model, save_dir, save_prefix, steps):
 
 
 
+def model_perplexity(model, src, src_test, trg, trg_test, config, loss_criterion, src_valid=None, trg_valid=None, verbose=False):
+    """Compute model perplexity."""
+    # Get source minibatch
+    losses = []
+    for j in xrange(0, len(src_test['data']) // 100, config['data']['batch_size']):
+        input_lines_src, output_lines_src, lens_src, mask_src = get_minibatch(
+            src_test['data'], src['word2id'], j, config['data']['batch_size'],
+            config['data']['max_src_length'], add_start=True, add_end=True
+        )
+        input_lines_src = Variable(input_lines_src.data, volatile=True)
+        output_lines_src = Variable(input_lines_src.data, volatile=True)
+        mask_src = Variable(mask_src.data, volatile=True)
+
+        # Get target minibatch
+        input_lines_trg_gold, output_lines_trg_gold, lens_src, mask_src = (
+            get_minibatch(
+                trg_test['data'], trg['word2id'], j,
+                config['data']['batch_size'], config['data']['max_trg_length'],
+                add_start=True, add_end=True
+            )
+        )
+        input_lines_trg_gold = Variable(input_lines_trg_gold.data, volatile=True)
+        output_lines_trg_gold = Variable(output_lines_trg_gold.data, volatile=True)
+        mask_src = Variable(mask_src.data, volatile=True)
+
+        decoder_logit = model(input_lines_src, input_lines_trg_gold)
+
+        loss = loss_criterion(
+            decoder_logit.contiguous().view(-1, decoder_logit.size(2)),
+            output_lines_trg_gold.view(-1)
+        )
+
+        losses.append(loss.data[0])
+
+    return np.exp(np.mean(losses))
 
 
 
+def bleu_stats(hypothesis, reference):
+    """Compute statistics for BLEU."""
+    stats = []
+    stats.append(len(hypothesis))
+    stats.append(len(reference))
+    for n in range(1, 5):
+        s_ngrams = Counter(
+            [tuple(hypothesis[i:i + n]) for i in range(len(hypothesis) + 1 - n)]
+        )
+        r_ngrams = Counter(
+            [tuple(reference[i:i + n]) for i in range(len(reference) + 1 - n)]
+        )
+        stats.append(max([sum((s_ngrams & r_ngrams).values()), 0]))
+        stats.append(max([len(hypothesis) + 1 - n, 0]))
+    return stats
+
+
+def bleu(stats):
+    """Compute BLEU given n-gram statistics."""
+    if len(list(filter(lambda x: x == 0, stats))) > 0:
+        return 0
+    (c, r) = stats[:2]
+    log_bleu_prec = sum(
+        [math.log(float(x) / y) for x, y in zip(stats[2::2], stats[3::2])]
+    ) / 4.
+    return math.exp(min([0, 1 - float(r) / c]) + log_bleu_prec)
+
+
+def get_bleu(hypotheses, reference):
+    """Get validation BLEU score for dev set."""
+    stats = np.array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
+    for hyp, ref in zip(hypotheses, reference):
+        stats += np.array(bleu_stats(hyp, ref))
+    return 100 * bleu(stats)
 
 
 
-
-
+def tensor2np(tensor):
+    return tensor.data.cpu().numpy()
 
 
 
