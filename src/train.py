@@ -44,7 +44,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
     Total_KL_loss  = torch.tensor(0.0).cuda()
     cnt            = 0
     writer         = open('res/vae_epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.txt', 'w')
-    BLEU_score = []
+    val_bleu = AverageMeter()
     for batch in eval_iter:
         cnt += 1
         sample     = batch.text[0]
@@ -76,8 +76,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         #     length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
 
         k = 0 
-        pred_list = []
-        target_list = []
+        
         for i in logp:
             pred   = [args.index_2_word[int(l)] for l in sample[k]]
             target = [args.index_2_word[int(j)] for j in i]
@@ -89,12 +88,11 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
             writer.write('\n************\n\n')
             k = k + 1
         
-        BLEU_score.append(get_bleu(pred_list, target_list))
+        bleu_value = get_bleu(pred_list, target_list)
+        val_bleu.update(bleu_value, 1)
     writer.close()
     
-    logger.info('Evaluation BLEU_score is:%s\n'%(np.mean(BLEU_score)))
-    logger.info('\n')
-    
+    logger.info('AVG Evaluation BLEU_score is:%s\n'%(str(val_bleu.avg)))
     print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f"
                 %(Total_loss.data[0]/cnt, Total_NLL_loss.data[0]/cnt, Total_KL_loss.data[0]/cnt))
     
@@ -337,8 +335,29 @@ def tensor2np(tensor):
     return tensor.data.cpu().numpy()
 
 
+class AverageMeter(object):
+    """
+    Computes and stores the average and current value
+    Borrowed from ImageNet training in PyTorch project
+    https://github.com/pytorch/examples/tree/master/imagenet
+    """
+    def __init__(self):
+        self.reset()
 
+    def reset(self):
+        self.val = 0
+        self.avg = 0
+        self.sum = 0
+        self.count = 0
 
+    def update(self, val, n=1):
+        self.val = val
+        self.sum += val * n
+        self.count += n
+        self.avg = self.sum / self.count
+
+def randomChoice(batch_size):
+    return random.randint(0, batch_size - 1)
 
 
 
