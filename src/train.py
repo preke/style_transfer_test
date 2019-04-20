@@ -59,7 +59,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         mask_feature = Variable(mask_sample)
         mask_input   = mask_feature[:, :-1]
         
-        logp, mean, logv, z = model(_input, length, mask_input)
+        logp, mean, logv, z = model(mask_input, length, mask_input, False)
         
         
         NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,

@@ -86,7 +86,7 @@ class SentenceVAE(nn.Module):
 
         return mean, logv, z
 
-    def decoder(self, z, batch_size, sorted_idx, sorted_lengths, decoder_input=None):
+    def decoder(self, z, batch_size, sorted_idx, sorted_lengths, decoder_input, is_train):
         hidden = self.latent2hidden(z)
         if self.bidirectional or self.num_layers > 1:
             # unflatten hidden state
@@ -95,7 +95,7 @@ class SentenceVAE(nn.Module):
             hidden = hidden.unsqueeze(0)
 
         input_embedding = self.embedding(decoder_input)
-        input_embedding = self.mask_to_sentiment(decoder_input, input_embedding)
+        input_embedding = self.mask_to_sentiment(decoder_input, input_embedding, is_train)
         # decoder input
         input_embedding = self.embedding_dropout(input_embedding)
         packed_input = rnn_utils.pack_padded_sequence(input_embedding, sorted_lengths.data.tolist(), batch_first=True)
@@ -118,14 +118,20 @@ class SentenceVAE(nn.Module):
         
 
 
-    def mask_to_sentiment(self, input_sequence, input_embedding):
+    def mask_to_sentiment(self, input_sequence, input_embedding, is_train):
         decoder_input_embedding = []
         for i in range(input_sequence.size()[0]):
             for j in range(input_sequence.size()[1]):
                 if self.args.index_2_word[input_sequence[i, j]] == 'pos':
-                    input_embedding[i, j, :] = self.args.pos_rep
+                    if is_train:
+                        input_embedding[i, j, :] = self.args.pos_rep
+                    else:
+                        input_embedding[i, j, :] = self.args.neg_rep
                 if self.args.index_2_word[input_sequence[i, j]] == 'neg':
-                    input_embedding[i, j, :] = self.args.neg_rep
+                    if is_train:
+                        input_embedding[i, j, :] = self.args.neg_rep
+                    else:
+                        input_embedding[i, j, :] = self.args.pos_rep
         return input_embedding
 
     def _sample(self, dist, mode='greedy'):
@@ -136,7 +142,7 @@ class SentenceVAE(nn.Module):
 
         return sample
 
-    def forward(self, input_sequence, length, decoder_input=None):
+    def forward(self, input_sequence, length, decoder_input, is_train=True):
 
         batch_size = input_sequence.size(0)
         sorted_lengths, sorted_idx = torch.sort(length, descending=True)
@@ -148,7 +154,7 @@ class SentenceVAE(nn.Module):
         mean, logv, z = self.encoder(input_sequence, sorted_lengths, batch_size)
 
         # DECODER
-        logp = self.decoder(z, batch_size, sorted_idx, sorted_lengths, decoder_input)
+        logp = self.decoder(z, batch_size, sorted_idx, sorted_lengths, decoder_input, is_train)
 
         return logp, mean, logv, z
 
