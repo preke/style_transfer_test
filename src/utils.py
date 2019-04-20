@@ -135,10 +135,10 @@ def get_pos_neg_rep(word_2_index, pretrained_weight):
         for line in reader:
             neg_lex_list.append(word_tokenize(line)[0])
 
-    pos_lex_list = [pretrained_weight[word_2_index[i]] for i in pos_lex_list]
-    neg_lex_list = [pretrained_weight[word_2_index[i]] for i in neg_lex_list]
-    print(np.mean(pos_lex_list, axis=0))
-    print(np.mean(neg_lex_list, axis=0))
+    pos_lex_list = torch.tensor([pretrained_weight[word_2_index[i]] for i in pos_lex_list])
+    neg_lex_list = torch.tensor([pretrained_weight[word_2_index[i]] for i in neg_lex_list])
+    print(torch.mean(pos_lex_list, axis=0))
+    print(torch.mean(neg_lex_list, axis=0))
     return 0,0
 
 
