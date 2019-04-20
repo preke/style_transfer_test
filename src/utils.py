@@ -137,8 +137,8 @@ def get_pos_neg_rep(word_2_index, pretrained_weight):
 
     pos_lex_list = [pretrained_weight[word_2_index[i]] for i in pos_lex_list]
     neg_lex_list = [pretrained_weight[word_2_index[i]] for i in neg_lex_list]
-    print(torch.stack(pos_lex_list, dim=0).size())
-    print(torch.stack(pos_lex_list, dim=1).size())
+    print(torch.mean(torch.stack(pos_lex_list, dim=0), dim=1))
+
     # for i in pos_lex_list:
     #     print(i.size())
     return 0,0
