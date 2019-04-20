@@ -112,7 +112,7 @@ def train_vae(train_iter, eval_iter, model, args):
     tensor    = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.Tensor
     step      = 0
     cur_epoch = 0
-
+    log_file = open('train_log.txt', 'w')
     for epoch in range(args.num_epoch):
         model.train()
         tracker = defaultdict(tensor)
@@ -147,13 +147,17 @@ def train_vae(train_iter, eval_iter, model, args):
             if iteration % args.print_every == 0:
                 print("Train: Batch %04d, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f"
                 %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
+
+                log_file.write("Train: Batch %04d, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f\n"
+                %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
             if step % 2000 == 0:
                 eval_vae(model, eval_iter, args, step, cur_epoch, iteration)
 
                 model.train()
             iteration += 1
+            log_file.write('---\n')
         cur_epoch += 1
-
+    log_file.close()
 
 def kl_anneal_function(anneal_function, step, k, x0):
     if anneal_function == 'logistic':
