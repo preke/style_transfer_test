@@ -105,11 +105,11 @@ args.index_2_word = text_field.vocab.itos # only list of words
 # print(args.word_2_index['<PAD>']) # 1
 # print(args.word_2_index['<UNK>']) # 0
 
-
 # Initial word embedding
 logger.info('Getting pre-trained word embedding ...')
 args.pretrained_weight = get_pretrained_word_embed(GLOVE_PATH, args, text_field)  
 
+args.pos_rep, args.neg_rep = get_pos_neg_rep(args.word_2_index, args.pretrained_weight)
 
 ## Build CNN sentiment classifier
 # cnn = model.CNN_Text(args)
@@ -129,35 +129,36 @@ args.pretrained_weight = get_pretrained_word_embed(GLOVE_PATH, args, text_field)
 
 # Build Sentence_VAE model and train
 
-vae_model = SentenceVAE(
-    vocab_size          = args.vocab_size,
-    sos_idx             = args.word_2_index['<SOS>'],
-    eos_idx             = args.word_2_index['<EOS>'],
-    pad_idx             = args.word_2_index['<PAD>'],
-    unk_idx             = args.word_2_index['<UNK>'],
-    max_sequence_length = args.max_length,
-    embedding_size      = args.embed_dim,
-    rnn_type            = args.rnn_type,
-    hidden_size         = args.hidden_dim,
-    word_dropout        = args.word_dropout,
-    embedding_dropout   = args.embedding_dropout,
-    latent_size         = args.latent_size,
-    num_layers          = args.num_layers,
-    bidirectional       = args.bidirectional,
-    pre_embedding       = args.pretrained_weight)
 
-vae_model = vae_model.cuda()
-if args.snapshot is not None:
-    logger.info('Load model from' + args.snapshot)
-    vae_model.load_state_dict(torch.load(args.snapshot))
-else:
-    logger.info('Train model begin...')
-    try:
-        train_vae(train_iter=train_iter, eval_iter=dev_iter, model=vae_model, args=args)
-    except KeyboardInterrupt:
-        print(traceback.print_exc())
-        print('\n' + '-' * 89)
-        print('Exiting from training early')
+# vae_model = SentenceVAE(
+#     vocab_size          = args.vocab_size,
+#     sos_idx             = args.word_2_index['<SOS>'],
+#     eos_idx             = args.word_2_index['<EOS>'],
+#     pad_idx             = args.word_2_index['<PAD>'],
+#     unk_idx             = args.word_2_index['<UNK>'],
+#     max_sequence_length = args.max_length,
+#     embedding_size      = args.embed_dim,
+#     rnn_type            = args.rnn_type,
+#     hidden_size         = args.hidden_dim,
+#     word_dropout        = args.word_dropout,
+#     embedding_dropout   = args.embedding_dropout,
+#     latent_size         = args.latent_size,
+#     num_layers          = args.num_layers,
+#     bidirectional       = args.bidirectional,
+#     pre_embedding       = args.pretrained_weight)
+
+# vae_model = vae_model.cuda()
+# if args.snapshot is not None:
+#     logger.info('Load model from' + args.snapshot)
+#     vae_model.load_state_dict(torch.load(args.snapshot))
+# else:
+#     logger.info('Train model begin...')
+#     try:
+#         train_vae(train_iter=train_iter, eval_iter=dev_iter, model=vae_model, args=args)
+#     except KeyboardInterrupt:
+#         print(traceback.print_exc())
+#         print('\n' + '-' * 89)
+#         print('Exiting from training early')
 
 
 
