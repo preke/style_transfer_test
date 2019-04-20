@@ -129,7 +129,7 @@ class SentenceVAE(nn.Module):
                 if self.args.index_2_word[input_sequence[i, j]] == '<neg>':
                     print('neg')
                     input_embedding[i, j, :] = self.args.neg_rep
-        return input_embedding
+        return 0
 
     def _sample(self, dist, mode='greedy'):
 
