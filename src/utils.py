@@ -137,7 +137,8 @@ def get_pos_neg_rep(word_2_index, pretrained_weight):
 
     pos_lex_list = [pretrained_weight[word_2_index[i]] for i in pos_lex_list]
     neg_lex_list = [pretrained_weight[word_2_index[i]] for i in neg_lex_list]
-    print(pos_lex_list[:1])
+    print(np.mean(pos_lex_list))
+    print(np.mean(neg_lex_list))
     return 0,0
 
 
