@@ -13,6 +13,9 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 from collections import defaultdict, Counter, OrderedDict
 
+POS_LEXICON       = '../data/positive.txt'
+NEG_LEXICON       = '../data/negative.txt'
+
 class OrderedCounter(Counter, OrderedDict):
     'Counter that remembers the order elements are first encountered'
 
@@ -119,6 +122,24 @@ def to_var(x, volatile=False):
     if torch.cuda.is_available():
         x = x.cuda()
     return Variable(x, volatile=volatile)
+
+def get_pos_neg_rep(word_2_index, pretrained_weight):
+    pos_lex_list = []
+    neg_lex_list = []
+    with open(POS_LEXICON, 'r') as reader:
+        for line in reader:
+            pos_lex_list.append(lancaster_stemmer.stem(word_tokenize(line)[0]))
+
+    with open(NEG_LEXICON, 'r') as reader:
+        for line in reader:
+            neg_lex_list.append(lancaster_stemmer.stem(word_tokenize(line)[0]))
+
+    pos_lex_list = [pretrained_weight[word_2_index[i]] for i in pos_lex_list]
+    neg_lex_list = [pretrained_weight[word_2_index[i]] for i in neg_lex_list]
+    print(pos_lex_list[:1])
+    return 0,0
+
+
 
 
 
