@@ -123,10 +123,10 @@ class SentenceVAE(nn.Module):
         for i in range(input_sequence.size()[0]):
             for j in range(input_sequence.size()[1]):
                 print(self.args.index_2_word[input_sequence[i, j]])
-                if self.args.index_2_word[input_sequence[i, j]] == '<pos>':
+                if self.args.index_2_word[input_sequence[i, j]] == 'pos':
                     print('pos')
                     input_embedding[i, j, :] = self.args.pos_rep
-                if self.args.index_2_word[input_sequence[i, j]] == '<neg>':
+                if self.args.index_2_word[input_sequence[i, j]] == 'neg':
                     print('neg')
                     input_embedding[i, j, :] = self.args.neg_rep
         return 0
