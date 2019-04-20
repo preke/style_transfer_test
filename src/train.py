@@ -110,8 +110,9 @@ def train_vae(train_iter, eval_iter, model, args):
     
     optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
     tensor    = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.Tensor
-    step = 0
+    step      = 0
     cur_epoch = 0
+
     for epoch in range(args.num_epoch):
         model.train()
         tracker = defaultdict(tensor)
@@ -131,7 +132,7 @@ def train_vae(train_iter, eval_iter, model, args):
             mask_feature = Variable(mask_sample)
             mask_input   = mask_feature[:, :-1]
             
-            logp, mean, logv, z = model(mask_input, length, _input)
+            logp, mean, logv, z = model(mask_input, length, mask_input)
             # loss calculation
             NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
                 length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)

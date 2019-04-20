@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 class SentenceVAE(nn.Module):
 
     def __init__(self, vocab_size, embedding_size, rnn_type, hidden_size, word_dropout, embedding_dropout, latent_size,
-                sos_idx, eos_idx, pad_idx, unk_idx, max_sequence_length, pre_embedding, num_layers=1, bidirectional=False):
+                sos_idx, eos_idx, pad_idx, unk_idx, max_sequence_length, pre_embedding, args, num_layers=1, bidirectional=False):
 
         super().__init__()
         self.tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.Tensor
@@ -64,7 +64,7 @@ class SentenceVAE(nn.Module):
 
 
 
-        
+
 
     def encoder(self, input_sequence, sorted_lengths, batch_size):
         input_embedding = self.embedding(input_sequence)
@@ -94,54 +94,37 @@ class SentenceVAE(nn.Module):
         else:
             hidden = hidden.unsqueeze(0)
 
-        if decoder_input is not None:
-            input_embedding = self.embedding(decoder_input)
-            # decoder input
-            input_embedding = self.embedding_dropout(input_embedding)
-            packed_input = rnn_utils.pack_padded_sequence(input_embedding, sorted_lengths.data.tolist(), batch_first=True)
+        input_embedding = self.embedding(decoder_input)
+        input_embedding = self.
+        # decoder input
+        input_embedding = self.embedding_dropout(input_embedding)
+        packed_input = rnn_utils.pack_padded_sequence(input_embedding, sorted_lengths.data.tolist(), batch_first=True)
 
-            # decoder forward pass
-            outputs, _ = self.decoder_rnn(packed_input, hidden)
-            # print(outputs.sorted_indices)
-            # process outputs
-            padded_outputs = rnn_utils.pad_packed_sequence(outputs, batch_first=True)[0]
+        # decoder forward pass
+        outputs, _ = self.decoder_rnn(packed_input, hidden)
+        # print(outputs.sorted_indices)
+        # process outputs
+        padded_outputs = rnn_utils.pad_packed_sequence(outputs, batch_first=True)[0]
 
-            padded_outputs = padded_outputs.contiguous()
-            _,reversed_idx = torch.sort(sorted_idx)
-            padded_outputs = padded_outputs[reversed_idx]
-            b,s,_ = padded_outputs.size()
+        padded_outputs = padded_outputs.contiguous()
+        _,reversed_idx = torch.sort(sorted_idx)
+        padded_outputs = padded_outputs[reversed_idx]
+        b,s,_ = padded_outputs.size()
 
-            # project outputs to vocab
-            logp = nn.functional.log_softmax(self.outputs2vocab(padded_outputs.view(-1, padded_outputs.size(2))), dim=-1)
-            logp = logp.view(b, s, self.embedding.num_embeddings)
-            return logp
-        else:         
-            input_sequence  = Variable(torch.zeros(batch_size, self.max_sequence_length).long()).cuda()
-            input_sequence[:,0] = Variable(torch.LongTensor([self.sos_idx]))
-            input_embedding = self.embedding(input_sequence) # b * s * e
-            input_embedding = self.embedding_dropout(input_embedding)
-            outputs, _ = self.decoder_rnn(input_embedding, hidden)
-            outputs = nn.functional.log_softmax(self.outputs2vocab(outputs.contiguous().view(-1, outputs.size(2))), dim=-1)
+        # project outputs to vocab
+        logp = nn.functional.log_softmax(self.outputs2vocab(padded_outputs.view(-1, padded_outputs.size(2))), dim=-1)
+        logp = logp.view(b, s, self.embedding.num_embeddings)
+        return logp
+        
 
-            # t = 0
-            # while(t < self.max_sequence_length-1):
-            #     if t == 0:
-            #         input_sequence = Variable(torch.LongTensor([self.sos_idx] * batch_size), volatile=True)
-            #         if torch.cuda.is_available():
-            #             input_sequence = input_sequence.cuda()
-            #             outputs        = outputs.cuda()
 
-                
-            #     input_sequence  = input_sequence.unsqueeze(1)
-            #     input_embedding = self.embedding(input_sequence) # b * e
-            #     output, hidden  = self.decoder_rnn(input_embedding, hidden) 
-            #     logits          = self.outputs2vocab(output) # b * v
-            #     outputs[:,t,:]  = nn.functional.log_softmax(logits, dim=-1).squeeze(1)  # b * v 
-            #     input_sequence  = self._sample(logits)
-            #     t += 1
-
-            outputs = outputs.view(batch_size, self.max_sequence_length, self.embedding.num_embeddings)
-            return outputs
+    def mask_to_sentiment(self, input_sequence, input_embedding):
+        decoder_input_embedding = []
+        print(type(input_sequence))
+        print(input_sequence.size())
+        print(type(input_embedding))
+        print(input_embedding.size())
+        return decoder_input_embedding
 
     def _sample(self, dist, mode='greedy'):
 
