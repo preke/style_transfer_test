@@ -5,6 +5,7 @@ import torch.nn as nn
 import torchtext.data as data
 import torchtext.datasets as datasets
 from nltk.corpus import sentiwordnet as swn
+from nltk.tokenize import word_tokenize
 import pickle
 import numpy as np
 import codecs
@@ -128,11 +129,11 @@ def get_pos_neg_rep(word_2_index, pretrained_weight):
     neg_lex_list = []
     with open(POS_LEXICON, 'r') as reader:
         for line in reader:
-            pos_lex_list.append(lancaster_stemmer.stem(word_tokenize(line)[0]))
+            pos_lex_list.append(word_tokenize(line)[0])
 
     with open(NEG_LEXICON, 'r') as reader:
         for line in reader:
-            neg_lex_list.append(lancaster_stemmer.stem(word_tokenize(line)[0]))
+            neg_lex_list.append(word_tokenize(line)[0])
 
     pos_lex_list = [pretrained_weight[word_2_index[i]] for i in pos_lex_list]
     neg_lex_list = [pretrained_weight[word_2_index[i]] for i in neg_lex_list]

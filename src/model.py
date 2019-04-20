@@ -62,6 +62,10 @@ class SentenceVAE(nn.Module):
         self.latent2hidden = nn.Linear(latent_size, hidden_size * self.hidden_factor)
         self.outputs2vocab = nn.Linear(hidden_size * (2 if bidirectional else 1), vocab_size)
 
+
+
+        
+
     def encoder(self, input_sequence, sorted_lengths, batch_size):
         input_embedding = self.embedding(input_sequence)
         packed_input = rnn_utils.pack_padded_sequence(input_embedding, sorted_lengths.data.tolist(), batch_first=True)
