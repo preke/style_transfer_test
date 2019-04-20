@@ -103,8 +103,8 @@ def load_glove_as_dict(filepath):
             word_vec[word] = vec
 
 
-    word_vec['<pos>'] = np.random.rand(1, 300)
-    word_vec['<neg>'] = word_vec['<pos>']
+    word_vec['pos'] = np.random.rand(1, 300)
+    word_vec['neg'] = word_vec['pos']
     return word_vec
 
 def get_pretrained_word_embed(glove_path, args, text_field):
