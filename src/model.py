@@ -120,11 +120,15 @@ class SentenceVAE(nn.Module):
 
     def mask_to_sentiment(self, input_sequence, input_embedding):
         decoder_input_embedding = []
-        print(type(input_sequence))
-        print(input_sequence.size())
-        print(type(input_embedding))
-        print(input_embedding.size())
-        return decoder_input_embedding
+        for i in range(input_sequence.size()[0]):
+            for j in range(input_sequence.size()[1]):
+                if args.index_2_word[input_sequence[i, j]] == '<pos>':
+                    print('pos')
+                    input_embedding[i, j, :] = args.pos_rep
+                if args.index_2_word[input_sequence[i, j]] == '<neg>':
+                    print('neg')
+                    input_embedding[i, j, :] = args.neg_rep
+        return input_embedding
 
     def _sample(self, dist, mode='greedy'):
 
