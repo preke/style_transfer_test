@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 # self define
-from utils import preprocess_write, get_pretrained_word_embed, preprocess_pos_neg
+from utils import preprocess_write, get_pretrained_word_embed, preprocess_pos_neg, get_pos_neg_rep
 from dataload import load_data, load_pos_neg_data
 from model import SentenceVAE, CNN_Text
 from train import train_vae, train_cnn
