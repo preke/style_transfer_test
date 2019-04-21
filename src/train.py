@@ -70,6 +70,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         Total_NLL_loss += float(NLL_loss)/batch_size
         Total_KL_loss  += float(KL_loss)/batch_size
 
+
         logp = torch.argmax(logp, dim=2)
         # print(generations)
         # NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
@@ -91,7 +92,14 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         
         bleu_value = get_bleu(pred_list, target_list)
         val_bleu.update(bleu_value, 1)
-
+        del loss
+        del NLL_loss
+        del KL_loss
+        del KL_weight
+        del logp
+        del mean
+        del logv
+        del z
     writer.close()
     
     logger.info('AVG Evaluation BLEU_score is:%s\n'%(str(val_bleu.avg)))

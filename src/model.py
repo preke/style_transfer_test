@@ -114,12 +114,6 @@ class SentenceVAE(nn.Module):
         padded_outputs = padded_outputs[reversed_idx]
         b,s,_ = padded_outputs.size()
         # project outputs to vocab
-        del outputs
-        del decoder_input
-        del input_embedding
-        if is_train == False:
-            print('sleeping decoder\n')
-            time.sleep(5)
         logp = nn.functional.log_softmax(self.outputs2vocab(padded_outputs.view(-1, padded_outputs.size(2))), dim=-1)
         logp = logp.view(b, s, self.embedding.num_embeddings)
         return logp
