@@ -394,7 +394,7 @@ def predict_style(text, style_classifier, stoi, text_field):
     style_classifier.eval()
     text         = [[stoi[x] for x in text]]
     text         = torch.LongTensor(text).cuda()
-    text         = autograd.Variable(text, volatile=True)
+    text         = Variable(text, volatile=True)
     output       = style_classifier(text)
     _, predicted = torch.max(output, 1)
     return predicted.data
