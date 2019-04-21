@@ -84,6 +84,8 @@ class SentenceVAE(nn.Module):
         z = to_var(torch.randn([batch_size, self.latent_size]))
         z = z * std + mean
 
+        del hidden
+        
         return mean, logv, z
 
     def decoder(self, z, batch_size, sorted_idx, sorted_lengths, decoder_input, is_train):
@@ -115,6 +117,9 @@ class SentenceVAE(nn.Module):
         del outputs
         del decoder_input
         del input_embedding
+        if is_train == False:
+            print('sleeping decoder\n')
+            time.sleep(5)
         logp = nn.functional.log_softmax(self.outputs2vocab(padded_outputs.view(-1, padded_outputs.size(2))), dim=-1)
         logp = logp.view(b, s, self.embedding.num_embeddings)
         return logp
@@ -154,15 +159,10 @@ class SentenceVAE(nn.Module):
             decoder_input = decoder_input[sorted_idx]
 
         # ENCODER
-        if is_train == False:
-            print('sleeping encoder\n')
-            time.sleep(5)
+        
         mean, logv, z = self.encoder(input_sequence, sorted_lengths, batch_size)
 
         # DECODER
-        if is_train == False:
-            print('sleeping decoder\n')
-            time.sleep(5)
         logp = self.decoder(z, batch_size, sorted_idx, sorted_lengths, decoder_input, is_train)
 
         return logp, mean, logv, z
