@@ -59,7 +59,7 @@ args.dropout      = 0.1
 
 args.rnn_type          = 'gru'
 args.word_dropout      = 0
-args.embedding_dropout = 0.5
+args.embedding_dropout = 0.8
 args.latent_size       = 16
 args.num_layers        = 1
 args.bidirectional     = True
@@ -88,7 +88,7 @@ args.save_best     = True
 
 # Load data
 logger.info('Loading data begin...')
-text_field, label_field, train_data, train_iter, dev_data, dev_iter = load_data(mask_amazon_train, mask_amazon_test, args)
+text_field, label_field, train_data, train_iter, dev_data, dev_iter = load_data(mask_amazon_test, mask_amazon_test, args)
 text_field.build_vocab(train_data, dev_data, min_freq=5)
 label_field.build_vocab(train_data)
 logger.info('Length of vocab is: ' + str(len(text_field.vocab)))
@@ -112,18 +112,19 @@ print(type(args.pretrained_weight))
 args.pos_rep, args.neg_rep = get_pos_neg_rep(args.word_2_index, args.pretrained_weight)
 
 ## Build CNN sentiment classifier
-# cnn = model.CNN_Text(args)
-# if args.cnn_snapshot is not None:
-#     logger.info('Load CNN classifier from' + args.cnn_snapshot)
-#     cnn.load_state_dict(torch.load(args.cnn_snapshot))
-# else:
-#     logger.info('Train CNN classifier begin...')
-#     try:
-#         train_cnn(train_iter=train_iter, dev_iter=dev_iter, model=cnn, args=args)
-#     except KeyboardInterrupt:
-#         print(traceback.print_exc())
-#         print('\n' + '-' * 89)
-#         print('Exiting from training early')
+args.cnn_snapshot = './cnn/best_steps_248000.pt'
+cnn = model.CNN_Text(args)
+if args.cnn_snapshot is not None:
+    logger.info('Load CNN classifier from' + args.cnn_snapshot)
+    cnn.load_state_dict(torch.load(args.cnn_snapshot))
+else:
+    logger.info('Train CNN classifier begin...')
+    try:
+        train_cnn(train_iter=train_iter, dev_iter=dev_iter, model=cnn, args=args)
+    except KeyboardInterrupt:
+        print(traceback.print_exc())
+        print('\n' + '-' * 89)
+        print('Exiting from training early')
 
 
 
@@ -155,7 +156,7 @@ if args.snapshot is not None:
 else:
     logger.info('Train model begin...')
     try:
-        train_vae(train_iter=train_iter, eval_iter=dev_iter, model=vae_model, args=args)
+        train_vae(train_iter=train_iter, eval_iter=dev_iter, model=vae_model, args=args, style_classifier=cnn)
     except KeyboardInterrupt:
         print(traceback.print_exc())
         print('\n' + '-' * 89)

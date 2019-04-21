@@ -54,6 +54,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         feature    = Variable(sample)
         _input     = feature[:, :-1]
         target     = feature[:, 1:]
+        label      = batch.label
 
         mask_sample  = batch.mask_text[0]
         mask_feature = Variable(mask_sample)
@@ -88,6 +89,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
             writer.write('\n=============\n')
             writer.write(' '.join(target))
             writer.write('\n************\n\n')
+            print(predict_style(pred, style_classifier, args.word_2_index))
             k = k + 1
         
         bleu_value = get_bleu(pred_list, target_list)
@@ -112,7 +114,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
     logger.info('Save model to ' + save_path)
 
 
-def train_vae(train_iter, eval_iter, model, args):
+def train_vae(train_iter, eval_iter, model, args, style_classifier):
     save_dir = "../model/"
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)    
@@ -159,7 +161,7 @@ def train_vae(train_iter, eval_iter, model, args):
 
                 log_file.write("Train: Batch %04d, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f\n"
                 %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
-            if step % 2000 == 0 and step > 0:
+            if step % 200 == 0 and step > 0:
                 eval_vae(model, eval_iter, args, step, cur_epoch, iteration)
 
                 model.train()
@@ -375,6 +377,15 @@ def randomChoice(batch_size):
     return random.randint(0, batch_size - 1)
 
 
+def predict_style(text, style_classifier, stoi):
+    style_classifier.eval()
+    text = [[stoi[x] for x in text]]
+    x    = text_field.tensor_type(text)
+    x    = autograd.Variable(x, volatile=True)
+    print(x)
+    output = style_classifier(x)
+    _, predicted = torch.max(output, 1)
+    return predicted.data
 
 
 
