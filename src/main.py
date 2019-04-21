@@ -119,6 +119,7 @@ cnn = model.CNN_Text(args)
 if args.cnn_snapshot is not None:
     logger.info('Load CNN classifier from' + args.cnn_snapshot)
     cnn.load_state_dict(torch.load(args.cnn_snapshot))
+    cnn = cnn.cuda()
 else:
     logger.info('Train CNN classifier begin...')
     try:
