@@ -393,7 +393,7 @@ def randomChoice(batch_size):
 def predict_style(text, style_classifier, stoi, text_field):
     style_classifier.eval()
     text = [[stoi[x] for x in text]]
-    text = torch.LongTensor(text)
+    text = torch.LongTensor(text).cuda()
     x    = autograd.Variable(x, volatile=True)
     output = style_classifier(x)
     _, predicted = torch.max(output, 1)
