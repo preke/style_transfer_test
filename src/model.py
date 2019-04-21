@@ -112,6 +112,9 @@ class SentenceVAE(nn.Module):
         padded_outputs = padded_outputs[reversed_idx]
         b,s,_ = padded_outputs.size()
         # project outputs to vocab
+        del outputs
+        del input_sequence
+        del input_embedding
         logp = nn.functional.log_softmax(self.outputs2vocab(padded_outputs.view(-1, padded_outputs.size(2))), dim=-1)
         logp = logp.view(b, s, self.embedding.num_embeddings)
         return logp
