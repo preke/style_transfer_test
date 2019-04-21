@@ -66,9 +66,9 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
             length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
         loss = (NLL_loss + KL_weight * KL_loss)/batch_size
         
-        Total_loss     += loss
-        Total_NLL_loss += NLL_loss/batch_size
-        Total_KL_loss  += KL_loss/batch_size
+        Total_loss     += float(loss)
+        Total_NLL_loss += float(NLL_loss)/batch_size
+        Total_KL_loss  += float(KL_loss)/batch_size
 
         logp = torch.argmax(logp, dim=2)
         # print(generations)
@@ -76,21 +76,21 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         #     length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
 
         k = 0 
-        # pred_list = []
-        # target_list = []
+        pred_list = []
+        target_list = []
         for i in logp:
             pred   = [args.index_2_word[int(l)] for l in sample[k]]
             target = [args.index_2_word[int(j)] for j in i]
-            # pred_list.append(pred)
-            # target_list.append(target)
+            pred_list.append(pred)
+            target_list.append(target)
             writer.write(' '.join(pred))
             writer.write('\n=============\n')
             writer.write(' '.join(target))
             writer.write('\n************\n\n')
             k = k + 1
         
-        # bleu_value = get_bleu(pred_list, target_list)
-        # val_bleu.update(bleu_value, 1)
+        bleu_value = get_bleu(pred_list, target_list)
+        val_bleu.update(bleu_value, 1)
 
     writer.close()
     
