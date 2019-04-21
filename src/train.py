@@ -393,6 +393,7 @@ def randomChoice(batch_size):
 def predict_style(text, style_classifier, stoi, text_field):
     style_classifier.eval()
     text = [[stoi[x] for x in text]]
+    print(text)
     x    = text_field.tensor_type(text)
     x    = autograd.Variable(x, volatile=True)
     print(x)
