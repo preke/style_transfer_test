@@ -36,12 +36,13 @@ config_file = 'logging.ini'
 logging.config.fileConfig(config_file, disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
-def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
+def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_classifier):
     model.eval()
     
-    Total_loss     = torch.tensor(0.0).cuda()
-    Total_NLL_loss = torch.tensor(0.0).cuda()
-    Total_KL_loss  = torch.tensor(0.0).cuda()
+    Total_loss           = torch.tensor(0.0).cuda()
+    Total_NLL_loss       = torch.tensor(0.0).cuda()
+    Total_KL_loss        = torch.tensor(0.0).cuda()
+    Total_sentiment_loss = torch.tensor(0.0).cuda()
     cnt            = 0
     writer         = open('res/vae_epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.txt', 'w')
     val_bleu = AverageMeter()
@@ -65,17 +66,8 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         
         NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
             length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
-        loss = (NLL_loss + KL_weight * KL_loss)/batch_size
-        
-        Total_loss     += float(loss)
-        Total_NLL_loss += float(NLL_loss)/batch_size
-        Total_KL_loss  += float(KL_loss)/batch_size
-
 
         logp = torch.argmax(logp, dim=2)
-        # print(generations)
-        # NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
-        #     length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
 
         k = 0 
         pred_list = []
@@ -89,12 +81,22 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
             writer.write('\n=============\n')
             writer.write(' '.join(pred))
             writer.write('\n************\n\n')
-            print(predict_style(pred, style_classifier, args.word_2_index, args.text_field))
             k = k + 1
         
         bleu_value = get_bleu(pred_list, target_list)
         val_bleu.update(bleu_value, 1)
+
+        sentiment      = sentiment_classifier(logp)
+        sentiment_loss = F.cross_entropy(sentiment, label)
+        loss           = (NLL_loss + KL_weight * KL_loss + sentiment_loss)/batch_size
+        
+        Total_loss     += float(loss)
+        Total_NLL_loss += float(NLL_loss)/batch_size
+        Total_KL_loss  += float(KL_loss)/batch_size
+        Total_sentiment_loss  += float(sentiment_loss)/batch_size
+        
         del loss
+        del sentiment_loss
         del NLL_loss
         del KL_loss
         del KL_weight
@@ -105,8 +107,8 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
     writer.close()
     
     logger.info('AVG Evaluation BLEU_score is:%s\n'%(str(val_bleu.avg)))
-    print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f"
-                %(Total_loss.data[0]/cnt, Total_NLL_loss.data[0]/cnt, Total_KL_loss.data[0]/cnt))
+    print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, Senti-Loss %9.4f"
+                %(Total_loss.data[0]/cnt, Total_NLL_loss.data[0]/cnt, Total_KL_loss.data[0]/cnt, Total_sentiment_loss.data[0]/cnt))
     
     # logger.info('\n')
     save_path = 'saved_model/epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.pt'
@@ -114,7 +116,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
     logger.info('Save model to ' + save_path)
 
 
-def train_vae(train_iter, eval_iter, model, args, style_classifier):
+def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
     save_dir = "../model/"
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)    
@@ -138,7 +140,7 @@ def train_vae(train_iter, eval_iter, model, args, style_classifier):
             feature      = Variable(sample)
             _input       = feature[:, :-1]
             target       = feature[:, 1:]
-
+            label        = batch.label
             mask_sample  = batch.mask_text[0]
             mask_feature = Variable(mask_sample)
             mask_input   = mask_feature[:, :-1]
@@ -148,23 +150,10 @@ def train_vae(train_iter, eval_iter, model, args, style_classifier):
             NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
                 length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
 
-            logp = torch.argmax(logp, dim=2)
-            print(logp.size())
-            time.sleep(100)
-            for i in logp:
-                pred = [args.index_2_word[int(j)] for j in i]
-                print(predict_style(pred, style_classifier, args.word_2_index, args.text_field))
-
-
-
-            loss = (NLL_loss + KL_weight * KL_loss)/batch_size
-
-
-
-            
-
-
-
+            logp           = torch.argmax(logp, dim=2)
+            sentiment      = sentiment_classifier(logp)
+            sentiment_loss = F.cross_entropy(sentiment, label)
+            loss           = (NLL_loss + KL_weight * KL_loss + sentiment_loss)/batch_size
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -172,13 +161,14 @@ def train_vae(train_iter, eval_iter, model, args, style_classifier):
 
             tracker['ELBO'] = torch.cat((tracker['ELBO'], loss.data.unsqueeze(0)))
             if iteration % args.print_every == 0:
-                print("Train: Batch %04d, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f"
-                %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
+                print("Train: Batch %04d, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f, Senti-Loss: %9.4f"
+                %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight, sentiment_loss.data[0]/batch_size))
 
-                log_file.write("Train: Batch %04d, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f\n"
-                %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
+                log_file.write("Train: Batch %04d, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f, Senti-Loss: %9.4f"
+                %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight, sentiment_loss.data[0]/batch_size))
+
             if step % 200 == 0 and step > 0:
-                eval_vae(model, eval_iter, args, step, cur_epoch, iteration, style_classifier)
+                eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_classifier)
 
                 model.train()
             iteration += 1
@@ -392,14 +382,6 @@ def randomChoice(batch_size):
     return random.randint(0, batch_size - 1)
 
 
-def predict_style(text, style_classifier, stoi, text_field):
-    style_classifier.eval()
-    text         = [[stoi[x] for x in text]]
-    text         = torch.LongTensor(text)
-    text         = Variable(text, volatile=True)
-    output       = style_classifier(text)
-    _, predicted = torch.max(output, 1)
-    return predicted.data[0]
 
 
 
