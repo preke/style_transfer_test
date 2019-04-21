@@ -81,13 +81,13 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         pred_list = []
         target_list = []
         for i in logp:
-            pred   = [args.index_2_word[int(l)] for l in sample[k]]
-            target = [args.index_2_word[int(j)] for j in i]
+            target = [args.index_2_word[int(l)] for l in sample[k]]
+            pred   = [args.index_2_word[int(j)] for j in i]
             pred_list.append(pred)
             target_list.append(target)
-            writer.write(' '.join(pred))
-            writer.write('\n=============\n')
             writer.write(' '.join(target))
+            writer.write('\n=============\n')
+            writer.write(' '.join(pred))
             writer.write('\n************\n\n')
             print(predict_style(pred, style_classifier, args.word_2_index))
             k = k + 1
@@ -148,7 +148,21 @@ def train_vae(train_iter, eval_iter, model, args, style_classifier):
             NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
                 length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
 
+            logp = torch.argmax(logp, dim=2)
+            for i in logp:
+                pred = [args.index_2_word[int(j)] for j in i]
+                print(predict_style(pred, style_classifier, args.word_2_index))
+
+
+
             loss = (NLL_loss + KL_weight * KL_loss)/batch_size
+
+
+
+            
+
+
+
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -162,11 +176,10 @@ def train_vae(train_iter, eval_iter, model, args, style_classifier):
                 log_file.write("Train: Batch %04d, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f\n"
                 %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight))
             if step % 200 == 0 and step > 0:
-                eval_vae(model, eval_iter, args, step, cur_epoch, iteration)
+                eval_vae(model, eval_iter, args, step, cur_epoch, iteration, style_classifier)
 
                 model.train()
             iteration += 1
-            log_file.write('---\n')
         cur_epoch += 1
     log_file.close()
 
