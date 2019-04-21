@@ -51,7 +51,7 @@ args.hidden_dim   = 100
 args.batch_size   = 32
 args.lr           = 0.0001
 args.num_epoch    = 200
-args.max_length   = 30
+args.max_length   = 20
 args.device       = torch.device('cuda')
 
 args.dropout      = 0.1
