@@ -91,6 +91,8 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         
         bleu_value = get_bleu(pred_list, target_list)
         val_bleu.update(bleu_value, 1)
+
+        del logp
     writer.close()
     
     logger.info('AVG Evaluation BLEU_score is:%s\n'%(str(val_bleu.avg)))
