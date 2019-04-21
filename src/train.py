@@ -119,8 +119,8 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
     
     # logger.info('\n')
     size = len(eval_iter.dataset)
-    accuracy = 100.0 * corrects/size
-    print('Evaluation acc: {:.4f}%({}/{}) \n'.format(accuracy, corrects, size))
+    accuracy = 100.0 * senti_corrects/size
+    print('Evaluation acc: {:.4f}%({}/{}) \n'.format(accuracy, senti_corrects, size))
 
 
     save_path = 'saved_model/epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.pt'
