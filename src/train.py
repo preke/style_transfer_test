@@ -44,6 +44,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
     Total_KL_loss        = torch.tensor(0.0).cuda()
     Total_sentiment_loss = torch.tensor(0.0).cuda()
     cnt            = 0
+    senti_corrects = 0
     writer         = open('res/vae_epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.txt', 'w')
     val_bleu = AverageMeter()
     for batch in eval_iter:
@@ -95,6 +96,12 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
         Total_KL_loss  += float(KL_loss)/batch_size
         Total_sentiment_loss  += float(sentiment_loss)/batch_size
         
+
+        # Add sentiment accuracy
+        senti_corrects += (torch.max(sentiment, 1)
+                     [1].view(label.size()).data == label.data).sum()
+
+
         del loss
         del sentiment_loss
         del NLL_loss
@@ -111,6 +118,11 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
                 %(Total_loss.data[0]/cnt, Total_NLL_loss.data[0]/cnt, Total_KL_loss.data[0]/cnt, Total_sentiment_loss.data[0]/cnt))
     
     # logger.info('\n')
+    size = len(eval_iter.dataset)
+    accuracy = 100.0 * corrects/size
+    print('Evaluation acc: {:.4f}%({}/{}) \n'.format(accuracy, corrects, size))
+
+
     save_path = 'saved_model/epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.pt'
     torch.save(model.state_dict(), save_path)
     logger.info('Save model to ' + save_path)
