@@ -76,26 +76,22 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
         #     length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
 
         k = 0 
-        pred_list = []
-        target_list = []
+        # pred_list = []
+        # target_list = []
         for i in logp:
             pred   = [args.index_2_word[int(l)] for l in sample[k]]
             target = [args.index_2_word[int(j)] for j in i]
-            pred_list.append(pred)
-            target_list.append(target)
+            # pred_list.append(pred)
+            # target_list.append(target)
             writer.write(' '.join(pred))
             writer.write('\n=============\n')
             writer.write(' '.join(target))
             writer.write('\n************\n\n')
             k = k + 1
         
-        bleu_value = get_bleu(pred_list, target_list)
-        val_bleu.update(bleu_value, 1)
+        # bleu_value = get_bleu(pred_list, target_list)
+        # val_bleu.update(bleu_value, 1)
 
-        del logp
-        del mean
-        del logv
-        del z
     writer.close()
     
     logger.info('AVG Evaluation BLEU_score is:%s\n'%(str(val_bleu.avg)))
