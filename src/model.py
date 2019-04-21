@@ -95,8 +95,8 @@ class SentenceVAE(nn.Module):
             hidden = hidden.unsqueeze(0)
 
         input_embedding = self.embedding(decoder_input)
-        # input_embedding = self.mask_to_sentiment(decoder_input, input_embedding, is_train)
-        # input_embedding = input_embedding.cuda()
+        input_embedding = self.mask_to_sentiment(decoder_input, input_embedding, is_train)
+        input_embedding = input_embedding.cuda()
         # decoder input
         input_embedding = self.embedding_dropout(input_embedding)
         packed_input = rnn_utils.pack_padded_sequence(input_embedding, sorted_lengths.data.tolist(), batch_first=True)
