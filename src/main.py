@@ -112,8 +112,8 @@ print(type(args.pretrained_weight))
 args.pos_rep, args.neg_rep = get_pos_neg_rep(args.word_2_index, args.pretrained_weight)
 
 ## Build CNN sentiment classifier
-# args.cnn_snapshot = './cnn/best_steps_248000.pt'
-args.cnn_snapshot = './cnn/test_best_steps_900.pt'
+args.cnn_snapshot = './cnn/best_steps_248000.pt'
+# args.cnn_snapshot = './cnn/test_best_steps_900.pt'
 
 cnn = model.CNN_Text(args)
 if args.cnn_snapshot is not None:

@@ -179,7 +179,7 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
                 log_file.write("Train: Batch %04d, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f, Senti-Loss: %9.4f"
                 %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight, sentiment_loss.data[0]/batch_size))
 
-            if step % 200 == 0 and step > 0:
+            if step % 2000 == 0 and step > 0:
                 eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_classifier)
 
                 model.train()
