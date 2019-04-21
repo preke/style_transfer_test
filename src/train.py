@@ -149,6 +149,8 @@ def train_vae(train_iter, eval_iter, model, args, style_classifier):
                 length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
 
             logp = torch.argmax(logp, dim=2)
+            print(logp.size())
+            time.sleep(100)
             for i in logp:
                 pred = [args.index_2_word[int(j)] for j in i]
                 print(predict_style(pred, style_classifier, args.word_2_index, args.text_field))
@@ -397,7 +399,7 @@ def predict_style(text, style_classifier, stoi, text_field):
     text         = Variable(text, volatile=True)
     output       = style_classifier(text)
     _, predicted = torch.max(output, 1)
-    return predicted.data
+    return predicted.data[0]
 
 
 
