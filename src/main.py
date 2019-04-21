@@ -98,7 +98,7 @@ logger.info('Length of vocab is: ' + str(len(text_field.vocab)))
 args.vocab_size   = len(text_field.vocab)
 args.word_2_index = text_field.vocab.stoi # tuple of dict({word: index})
 args.index_2_word = text_field.vocab.itos # only list of words
-
+args.text_field   = text_field
 
 # print(args.word_2_index['<SOS>']) # 2
 # print(args.word_2_index['<EOS>']) # 3
@@ -132,7 +132,7 @@ else:
 
 # Build Sentence_VAE model and train
 
-
+logger.info('Build VAE model...')
 vae_model = SentenceVAE(
     vocab_size          = args.vocab_size,
     sos_idx             = args.word_2_index['<SOS>'],
