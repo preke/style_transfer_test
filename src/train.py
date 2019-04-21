@@ -89,7 +89,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration):
             writer.write('\n=============\n')
             writer.write(' '.join(pred))
             writer.write('\n************\n\n')
-            print(predict_style(pred, style_classifier, args.word_2_index))
+            print(predict_style(pred, style_classifier, args.word_2_index, args.text_field))
             k = k + 1
         
         bleu_value = get_bleu(pred_list, target_list)
@@ -151,7 +151,7 @@ def train_vae(train_iter, eval_iter, model, args, style_classifier):
             logp = torch.argmax(logp, dim=2)
             for i in logp:
                 pred = [args.index_2_word[int(j)] for j in i]
-                print(predict_style(pred, style_classifier, args.word_2_index))
+                print(predict_style(pred, style_classifier, args.word_2_index, args.text_field))
 
 
 
@@ -390,7 +390,7 @@ def randomChoice(batch_size):
     return random.randint(0, batch_size - 1)
 
 
-def predict_style(text, style_classifier, stoi):
+def predict_style(text, style_classifier, stoi, text_field):
     style_classifier.eval()
     text = [[stoi[x] for x in text]]
     x    = text_field.tensor_type(text)
