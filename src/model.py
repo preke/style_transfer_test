@@ -154,9 +154,15 @@ class SentenceVAE(nn.Module):
             decoder_input = decoder_input[sorted_idx]
 
         # ENCODER
+        if is_train == False:
+            print('sleeping encoder\n')
+            time.sleep(5)
         mean, logv, z = self.encoder(input_sequence, sorted_lengths, batch_size)
 
         # DECODER
+        if is_train == False:
+            print('sleeping decoder\n')
+            time.sleep(5)
         logp = self.decoder(z, batch_size, sorted_idx, sorted_lengths, decoder_input, is_train)
 
         return logp, mean, logv, z
