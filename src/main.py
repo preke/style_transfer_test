@@ -153,7 +153,7 @@ vae_model = SentenceVAE(
     args                = args)
 
 vae_model = vae_model.cuda()
-args.snapshot = './saved_model/epoch_24_batch_14743_.pt'
+args.snapshot = './saved_model/epoch_24_batch_12743_.pt'
 if args.snapshot is not None:
     logger.info('Load model from' + args.snapshot)
     vae_model.load_state_dict(torch.load(args.snapshot))
