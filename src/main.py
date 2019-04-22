@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 from utils import preprocess_write, get_pretrained_word_embed, preprocess_pos_neg, get_pos_neg_rep
 from dataload import load_data, load_pos_neg_data
 from model import SentenceVAE, CNN_Text
-from train import train_vae, train_cnn
+from train import train_vae, train_cnn, eval_vae
 
 
 # paths
@@ -153,9 +153,19 @@ vae_model = SentenceVAE(
     args                = args)
 
 vae_model = vae_model.cuda()
+args.snapshot = './saved_model/epoch_24_batch_14743_.pt'
 if args.snapshot is not None:
     logger.info('Load model from' + args.snapshot)
     vae_model.load_state_dict(torch.load(args.snapshot))
+
+    eval_vae(model                = vae_model,
+             eval_iter            = dev_iter, 
+             args                 = args, 
+             step                 = 0, 
+             cur_epoch            = 0,
+             iteration            = 0, 
+             sentiment_classifier = cnn)
+
 else:
     logger.info('Train model begin...')
     try:
