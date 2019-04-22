@@ -157,7 +157,7 @@ args.snapshot = './saved_model/epoch_24_batch_12743_.pt'
 if args.snapshot is not None:
     logger.info('Load model from' + args.snapshot)
     vae_model.load_state_dict(torch.load(args.snapshot))
-
+    vae_model = vae_model.cuda()
     eval_vae(model                = vae_model,
              eval_iter            = dev_iter, 
              args                 = args, 
