@@ -268,7 +268,7 @@ class CNN_Text(nn.Module):
         return x
 
     def forward(self, x):
-        x_padding = torch.ones(x.size(0)).unsqueeze(1)
+        x_padding = torch.ones(x.size(0)).unsqueeze(1).type(torch.LongTensor).cuda()
         print(x.size())
         print(x_padding.size())
         x = x_padding + x + x_padding
