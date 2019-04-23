@@ -166,6 +166,7 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
                 length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
 
             logp           = torch.argmax(logp, dim=2)
+            print('111\n')
             sentiment      = sentiment_classifier(logp)
             sentiment_loss = F.cross_entropy(sentiment, label)
             loss           = (NLL_loss + KL_weight * KL_loss + sentiment_loss)/batch_size
