@@ -36,6 +36,10 @@ config_file = 'logging.ini'
 logging.config.fileConfig(config_file, disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
+Best_Self_BLEU = 0.0
+Best_acc       = 0.0
+Best_BLEU      = 0.0
+
 def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_classifier):
     model.eval()
     
@@ -45,7 +49,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
     Total_sentiment_loss = torch.tensor(0.0).cuda()
     cnt            = 0
     senti_corrects = 0
-    writer         = open('res/vae_epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.txt', 'w')
+    writer         = open('res/yelp_vae_epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.txt', 'w')
     val_bleu = AverageMeter()
     for batch in eval_iter:
         cnt += 1
@@ -122,10 +126,10 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
     accuracy = 100.0 * senti_corrects/size
     print('Evaluation acc: {:.4f}%({}/{}) \n'.format(accuracy, senti_corrects, size))
 
-
-    save_path = 'saved_model/epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.pt'
-    torch.save(model.state_dict(), save_path)
-    logger.info('Save model to ' + save_path)
+    if accuracy > Best_acc or val_bleu.avg > Best_Self_BLEU:
+        save_path = 'saved_model/yelp_acc_' + str(accuracy) + '_bleu_'+str(val_bleu.avg)+'_.pt'
+        torch.save(model.state_dict(), save_path)
+        logger.info('Save model to ' + save_path)
 
 
 def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
@@ -137,7 +141,6 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
     tensor    = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.Tensor
     step      = 0
     cur_epoch = 0
-    log_file = open('train_log.txt', 'w')
     for epoch in range(args.num_epoch):
         model.train()
         tracker = defaultdict(tensor)
@@ -176,16 +179,13 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
                 print("Train: Batch %04d, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f, Senti-Loss: %9.4f"
                 %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight, sentiment_loss.data[0]/batch_size))
 
-                log_file.write("Train: Batch %04d, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f, Senti-Loss: %9.4f"
-                %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight, sentiment_loss.data[0]/batch_size))
-
-            if step % 2000 == 0 and step > 0:
+                
+            if step % 500 == 0 and step > 0:
                 eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_classifier)
 
                 model.train()
             iteration += 1
         cur_epoch += 1
-    log_file.close()
 
 def kl_anneal_function(anneal_function, step, k, x0):
     if anneal_function == 'logistic':
