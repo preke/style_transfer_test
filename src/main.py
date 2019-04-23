@@ -30,7 +30,7 @@ from train import train_vae, train_cnn, eval_vae
 # paths
 
 GLOVE_PATH        = '../data/glove.6B.300d.txt'
-amazon_train      = '../data/amazon.train'
+amazon_train      = '../data/amazontrain'
 amazon_test       = '../data/amazon.test'
 mask_amazon_train = '../data/mask_amazon.train'
 mask_amazon_test  = '../data/mask_amazon.test'
