@@ -53,7 +53,7 @@ args.hidden_dim   = 100
 args.batch_size   = 32
 args.lr           = 0.0002
 args.num_epoch    = 200
-args.max_length   = 30
+args.max_length   = 20
 args.device       = torch.device('cuda')
 args.dropout      = 0.1
 
@@ -72,7 +72,7 @@ args.print_every       = 100
 
 ## CNN classifier
 
-args.kernel_num    = 100
+args.kernel_num    = 200
 args.kernel_sizes  = '3,4,5'
 args.kernel_sizes  = [int(k) for k in args.kernel_sizes.split(',')]
 args.cnn_save_dir  = './cnn/'
