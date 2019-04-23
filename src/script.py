@@ -57,13 +57,6 @@ writer.close()
 
 
 
-
-
-
-
-
-
-
 YELP_train = []
 YELP_test  = []
 
