@@ -30,10 +30,12 @@ from train import train_vae, train_cnn, eval_vae
 # paths
 
 GLOVE_PATH        = '../data/glove.6B.300d.txt'
-amazon_train      = '../data/amazontrain'
-amazon_test       = '../data/amazon.test'
-mask_amazon_train = '../data/mask_amazon.train'
-mask_amazon_test  = '../data/mask_amazon.test'
+
+mask_amazon_train = '../data/amazon/train.mask'
+mask_amazon_test  = '../data/amazon/test.mask'
+
+mask_yelp_train = '../data/yelp/train.mask'
+mask_yelp_test  = '../data/yelp/test.mask'
 
 
 parser = argparse.ArgumentParser(description='')
@@ -111,7 +113,7 @@ print(type(args.pretrained_weight))
 args.pos_rep, args.neg_rep = get_pos_neg_rep(args.word_2_index, args.pretrained_weight)
 
 ## Build CNN sentiment classifier
-args.cnn_snapshot = './cnn/best_steps_224700.pt'
+# args.cnn_snapshot = './cnn/best_steps_224700.pt'
 # args.cnn_snapshot = './cnn/test_best_steps_900.pt'
 
 cnn = model.CNN_Text(args)
