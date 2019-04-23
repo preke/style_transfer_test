@@ -127,7 +127,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
     print('Evaluation acc: {:.4f}%({}/{}) \n'.format(accuracy, senti_corrects, size))
 
     if accuracy > Best_acc or val_bleu.avg > Best_Self_BLEU:
-        save_path = 'saved_model/yelp_acc_' + str(float(accuracy)) + '_bleu_'+str(val_bleu.avg)[:6]+'_.pt'
+        save_path = 'saved_model/yelp_acc_' + str(float(accuracy)) + '_bleu_'+str(val_bleu.avg)+'_.pt'
         torch.save(model.state_dict(), save_path)
         logger.info('Save model to ' + save_path)
 
