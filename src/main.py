@@ -72,8 +72,8 @@ args.print_every       = 100
 
 ## CNN classifier
 
-args.kernel_num    = 200
-args.kernel_sizes  = '3,4,5'
+args.kernel_num    = 300
+args.kernel_sizes  = '3'
 args.kernel_sizes  = [int(k) for k in args.kernel_sizes.split(',')]
 args.cnn_save_dir  = './cnn/'
 args.num_class     = 2
@@ -113,7 +113,7 @@ print(type(args.pretrained_weight))
 args.pos_rep, args.neg_rep = get_pos_neg_rep(args.word_2_index, args.pretrained_weight)
 
 ## Build CNN sentiment classifier
-args.cnn_snapshot = './cnn/yelp_97.pt'
+# args.cnn_snapshot = './cnn/yelp_97.pt'
 # args.cnn_snapshot = './cnn/test_best_steps_900.pt'
 
 cnn = model.CNN_Text(args)
