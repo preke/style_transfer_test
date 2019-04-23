@@ -127,7 +127,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
     print('Evaluation acc: {:.4f}%({}/{}) \n'.format(accuracy, senti_corrects, size))
 
     if accuracy > Best_acc or val_bleu.avg > Best_Self_BLEU:
-        save_path = 'saved_model/yelp_acc_' + str(accuracy) + '_bleu_'+str(val_bleu.avg)+'_.pt'
+        save_path = 'saved_model/yelp_acc_' + str(float(accuracy)) + '_bleu_'+str(val_bleu.avg)[:6]+'_.pt'
         torch.save(model.state_dict(), save_path)
         logger.info('Save model to ' + save_path)
 
@@ -180,7 +180,7 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
                 %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight, sentiment_loss.data[0]/batch_size))
 
                 
-            if step % 500 == 0 and step > 0:
+            if step % 1000 == 0 and step > 0:
                 eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_classifier)
 
                 model.train()
