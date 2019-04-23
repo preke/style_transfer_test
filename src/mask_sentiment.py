@@ -13,10 +13,15 @@ import logging.config
 POS_LEXICON       = '../data/positive.txt'
 NEG_LEXICON       = '../data/negative.txt'
 
-TRAIN_PATH        = '../data/amazon/train.tsv'
-TEST_PATH         = '../data/amazon/test.tsv'
-MASKED_TRAIN_PATH = '../data/amazon/train.mask'
-MASKED_TEST_PATH  = '../data/amazon/test.mask'
+# TRAIN_PATH        = '../data/amazon/train.tsv'
+# TEST_PATH         = '../data/amazon/test.tsv'
+# MASKED_TRAIN_PATH = '../data/amazon/train.mask'
+# MASKED_TEST_PATH  = '../data/amazon/test.mask'
+
+TRAIN_PATH        = '../data/yelp/train.tsv'
+TEST_PATH         = '../data/yelp/test.tsv'
+MASKED_TRAIN_PATH = '../data/yelp/train.mask'
+MASKED_TEST_PATH  = '../data/yelp/test.mask'
 
 def punctuate(text):
     ans = ""
