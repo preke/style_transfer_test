@@ -51,9 +51,8 @@ args.hidden_dim   = 100
 args.batch_size   = 32
 args.lr           = 0.0002
 args.num_epoch    = 200
-args.max_length   = 20
+args.max_length   = 30
 args.device       = torch.device('cuda')
-
 args.dropout      = 0.1
 
 
@@ -76,7 +75,7 @@ args.kernel_sizes  = '3,4,5'
 args.kernel_sizes  = [int(k) for k in args.kernel_sizes.split(',')]
 args.cnn_save_dir  = './cnn/'
 args.num_class     = 2
-args.cnn_lr        = 0.001
+args.cnn_lr        = 0.002
 args.early_stop    = 1000
 
 args.test_interval = 100
@@ -133,47 +132,47 @@ else:
 
 # Build Sentence_VAE model and train
 
-logger.info('Build VAE model...')
-vae_model = SentenceVAE(
-    vocab_size          = args.vocab_size,
-    sos_idx             = args.word_2_index['<SOS>'],
-    eos_idx             = args.word_2_index['<EOS>'],
-    pad_idx             = args.word_2_index['<PAD>'],
-    unk_idx             = args.word_2_index['<UNK>'],
-    max_sequence_length = args.max_length,
-    embedding_size      = args.embed_dim,
-    rnn_type            = args.rnn_type,
-    hidden_size         = args.hidden_dim,
-    word_dropout        = args.word_dropout,
-    embedding_dropout   = args.embedding_dropout,
-    latent_size         = args.latent_size,
-    num_layers          = args.num_layers,
-    bidirectional       = args.bidirectional,
-    pre_embedding       = args.pretrained_weight,
-    args                = args)
+# logger.info('Build VAE model...')
+# vae_model = SentenceVAE(
+#     vocab_size          = args.vocab_size,
+#     sos_idx             = args.word_2_index['<SOS>'],
+#     eos_idx             = args.word_2_index['<EOS>'],
+#     pad_idx             = args.word_2_index['<PAD>'],
+#     unk_idx             = args.word_2_index['<UNK>'],
+#     max_sequence_length = args.max_length,
+#     embedding_size      = args.embed_dim,
+#     rnn_type            = args.rnn_type,
+#     hidden_size         = args.hidden_dim,
+#     word_dropout        = args.word_dropout,
+#     embedding_dropout   = args.embedding_dropout,
+#     latent_size         = args.latent_size,
+#     num_layers          = args.num_layers,
+#     bidirectional       = args.bidirectional,
+#     pre_embedding       = args.pretrained_weight,
+#     args                = args)
 
-vae_model = vae_model.cuda()
-args.snapshot = './saved_model/epoch_24_batch_12743_.pt'
-if args.snapshot is not None:
-    logger.info('Load model from' + args.snapshot)
-    vae_model.load_state_dict(torch.load(args.snapshot))
-    vae_model = vae_model.cuda()
-    eval_vae(model                = vae_model,
-             eval_iter            = dev_iter, 
-             args                 = args, 
-             step                 = 0, 
-             cur_epoch            = 0,
-             iteration            = 0, 
-             sentiment_classifier = cnn)
+# vae_model = vae_model.cuda()
+# args.snapshot = './saved_model/epoch_24_batch_12743_.pt'
+# if args.snapshot is not None:
+#     logger.info('Load model from' + args.snapshot)
+#     vae_model.load_state_dict(torch.load(args.snapshot))
+#     vae_model = vae_model.cuda()
+#     eval_vae(model                = vae_model,
+#              eval_iter            = dev_iter, 
+#              args                 = args, 
+#              step                 = 0, 
+#              cur_epoch            = 0,
+#              iteration            = 0, 
+#              sentiment_classifier = cnn)
 
-else:
-    logger.info('Train model begin...')
-    try:
-        train_vae(train_iter=train_iter, eval_iter=dev_iter, model=vae_model, args=args, sentiment_classifier=cnn)
-    except KeyboardInterrupt:
-        print(traceback.print_exc())
-        print('\n' + '-' * 89)
-        print('Exiting from training early')
+# else:
+#     logger.info('Train model begin...')
+#     try:
+#         train_vae(train_iter=train_iter, eval_iter=dev_iter, model=vae_model, args=args, sentiment_classifier=cnn)
+#     except KeyboardInterrupt:
+#         print(traceback.print_exc())
+#         print('\n' + '-' * 89)
+#         print('Exiting from training early')
 
 
 
