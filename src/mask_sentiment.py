@@ -18,10 +18,15 @@ NEG_LEXICON       = '../data/negative.txt'
 # MASKED_TRAIN_PATH = '../data/amazon/train.mask'
 # MASKED_TEST_PATH  = '../data/amazon/test.mask'
 
-TRAIN_PATH        = '../data/yelp/train.tsv'
-TEST_PATH         = '../data/yelp/test.tsv'
-MASKED_TRAIN_PATH = '../data/yelp/train.mask'
-MASKED_TEST_PATH  = '../data/yelp/test.mask'
+# TRAIN_PATH        = '../data/yelp/train.tsv'
+# TEST_PATH         = '../data/yelp/test.tsv'
+# MASKED_TRAIN_PATH = '../data/yelp/train.mask'
+# MASKED_TEST_PATH  = '../data/yelp/test.mask'
+
+
+
+reference_PATH         = '../data/yelp/reference.tsv'
+MASKED_reference_PATH  = '../data/yelp/reference.mask'
 
 def punctuate(text):
     ans = ""
