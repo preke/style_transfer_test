@@ -45,11 +45,10 @@ from collections import OrderedDict, defaultdict
 # logging.config.fileConfig(config_file, disable_existing_loggers=False)
 # logger = logging.getLogger(__name__)
 
-Best_acc  = 0.0
-Best_BLEU = 0.0
-Best_WMD  = 0.0
 
-def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_classifier, w2v_model):
+
+def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_classifier, w2v_model,
+    Best_acc, Best_BLEU, Best_WMD):
     model.eval()
     
     Total_loss           = torch.tensor(0.0).cuda()
@@ -136,10 +135,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
     accuracy = float(100.0 * senti_corrects/size)
     print('Evaluation acc: {:.4f}%({}/{}) \n'.format(accuracy, senti_corrects, size))
 
-    if accuracy > Best_acc or val_bleu.avg > Best_BLEU or val_wmd.avg > Best_WMD :
-        global Best_acc  
-        global Best_BLEU 
-        global Best_WMD  
+    if accuracy > Best_acc or val_bleu.avg > Best_BLEU or val_wmd.avg > Best_WMD: 
         Best_acc  = accuracy
         Best_BLEU = val_bleu.avg
         Best_WMD  = val_wmd.avg 
@@ -157,6 +153,9 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
     tensor    = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.Tensor
     step      = 0
     cur_epoch = 0
+    Best_acc  = 0.0
+    Best_BLEU = 0.0
+    Best_WMD  = 0.0
     w2v_model = Word2Vec.load("yelp_word2vec.model")
     for epoch in range(args.num_epoch):
         model.train()
@@ -198,7 +197,8 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
 
                 
             if step % 500 == 0 and step > 0:
-                eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_classifier, w2v_model)
+                eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_classifier, w2v_model,
+                    Best_acc, Best_BLEU, Best_WMD)
 
                 model.train()
             iteration += 1
