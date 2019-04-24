@@ -111,7 +111,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
 
         # convert the label of transfered sentences
         senti_corrects += (torch.max(sentiment, 1)
-                     [1].view(label.size()).data != label.data).sum()
+                     [1].view(label.size()).data == label.data).sum()
 
 
         del loss
@@ -132,16 +132,17 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
     
     # print('\n')
     size = len(eval_iter.dataset)
-    accuracy = float(100.0 * senti_corrects/size)
+    accuracy = float(100.0 * float(senti_corrects)/size)
     print('Evaluation acc: {:.4f}%({}/{}) \n'.format(accuracy, senti_corrects, size))
 
     if accuracy > Best_acc or val_bleu.avg > Best_BLEU or val_wmd.avg > Best_WMD: 
         Best_acc  = accuracy
         Best_BLEU = val_bleu.avg
-        Best_WMD  = val_wmd.avg 
-        save_path = 'saved_model/yelp_acc_'+str(accuracy)+'_bleu_'+str(val_bleu.avg)+'_wmd_'+str(val_wmd.avg)+'_.pt'
-        torch.save(model.state_dict(), save_path)
-        print('Save model to ' + save_path)
+        Best_WMD  = val_wmd.avg
+        if accuracy >= 70.0: 
+            save_path = 'saved_model/yelp_acc_'+str(accuracy)+'_bleu_'+str(val_bleu.avg)+'_wmd_'+str(val_wmd.avg)+'_.pt'
+            torch.save(model.state_dict(), save_path)
+            print('Save model to ' + save_path)
 
 
 def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
