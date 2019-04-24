@@ -1,5 +1,5 @@
 import random
-
+from gensim.models import Word2Vec
 
 
 AMAZON_PATH = '../data/amazon/'
