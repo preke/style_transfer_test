@@ -36,6 +36,7 @@ mask_amazon_test  = '../data/amazon/test.mask'
 
 mask_yelp_train = '../data/yelp/train.mask'
 mask_yelp_test  = '../data/yelp/test.mask'
+mask_yelp_ref  = '../data/yelp/reference.mask'
 
 
 parser = argparse.ArgumentParser(description='')
@@ -51,7 +52,7 @@ args.grad_clip    = 2
 args.embed_dim    = 300
 args.hidden_dim   = 100
 args.batch_size   = 32
-args.lr           = 0.0002
+args.lr           = 0.0005
 args.num_epoch    = 200
 args.max_length   = 20
 args.device       = torch.device('cuda')
@@ -89,7 +90,7 @@ args.save_best     = True
 
 # Load data
 logger.info('Loading data begin...')
-text_field, label_field, train_data, train_iter, dev_data, dev_iter = load_data(mask_yelp_train, mask_yelp_test, args)
+text_field, label_field, train_data, train_iter, dev_data, dev_iter = load_data(mask_yelp_train, mask_yelp_ref, args)
 text_field.build_vocab(train_data, dev_data, min_freq=5)
 label_field.build_vocab(train_data)
 logger.info('Length of vocab is: ' + str(len(text_field.vocab)))

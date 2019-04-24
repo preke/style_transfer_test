@@ -115,29 +115,62 @@ YELP_PATH = '../data/yelp/'
 
 
 
-## reference
-YELP_reference  = []
+# ## reference
+# YELP_reference  = []
 
-with open(YELP_PATH+'reference.1', 'r') as reader:
+# with open(YELP_PATH+'reference.1', 'r') as reader:
+#     for line in reader:
+#         # invert label
+#         new_line = '0\t' + line
+#         YELP_reference.append(new_line)
+
+# with open(YELP_PATH+'reference.0', 'r') as reader:
+#     for line in reader:
+#         # invert label
+#         new_line = '1\t' + line
+#         YELP_reference.append(new_line)
+
+
+# random.shuffle(YELP_reference)
+# print (len(YELP_reference))
+
+
+# writer = open(YELP_PATH + 'reference.tsv', 'w')
+# for line in YELP_reference:
+#     writer.write(line)
+# writer.close()
+
+
+## Train w2v model
+list_yelp = []
+english_punctuations = [',', '.', ':', ';', '?', '(', ')', '[', ']', '&', '!', '*', '@', '#', '$', '%', '\'']
+
+def punctuate(text):
+    ans = ""
+    for letter in text:
+        if letter in english_punctuations:
+            ans += ' '
+        else:
+            ans += letter
+    return ans
+
+with open(YELP_PATH+'train.tsv', 'w') as reader:
     for line in reader:
-        # invert label
-        new_line = '0\t' + line
-        YELP_reference.append(new_line)
+        sentence = line.split('\t')[1]
+        sentence = punctuate(sentence)
+        sentence = sentence.split(' ')
+        list_yelp.append(sentence)
 
-with open(YELP_PATH+'reference.0', 'r') as reader:
-    for line in reader:
-        # invert label
-        new_line = '1\t' + line
-        YELP_reference.append(new_line)
+w2v_model = Word2Vec(list_yelp, min_count=5)
+w2v_model.save('yelp_word2vec.model')
 
 
-random.shuffle(YELP_reference)
-print (len(YELP_reference))
 
 
-writer = open(YELP_PATH + 'reference.tsv', 'w')
-for line in YELP_reference:
-    writer.write(line)
-writer.close()
+
+
+
+
+
 
 

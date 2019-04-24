@@ -18,6 +18,15 @@ import torch.nn.functional as F
 import traceback
 
 
+from nltk.tokenize import word_tokenize
+from nltk.stem.porter import PorterStemmer
+from nltk.stem.lancaster import LancasterStemmer
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import stopwords
+from gensim.models import Word2Vec
+import pickle
+
+
 
 from collections import Counter
 import math
@@ -36,11 +45,11 @@ config_file = 'logging.ini'
 logging.config.fileConfig(config_file, disable_existing_loggers=False)
 logger = logging.getLogger(__name__)
 
-Best_Self_BLEU = 0.0
 Best_acc       = 0.0
 Best_BLEU      = 0.0
+Best_WMD      = 0.0
 
-def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_classifier):
+def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_classifier, w2v_model):
     model.eval()
     
     Total_loss           = torch.tensor(0.0).cuda()
@@ -51,6 +60,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
     senti_corrects = 0
     writer         = open('res/yelp_vae_epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.txt', 'w')
     val_bleu = AverageMeter()
+    val_wmd  = AverageMeter()
     for batch in eval_iter:
         cnt += 1
         sample     = batch.text[0]
@@ -78,7 +88,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
         pred_list = []
         target_list = []
         for i in logp:
-            target = [args.index_2_word[int(l)] for l in sample[k]]
+            target = [args.index_2_word[int(l)] for l in sample[k]][1:int(length[k])]
             pred   = [args.index_2_word[int(j)] for j in i]
             pred_list.append(pred)
             target_list.append(target)
@@ -87,6 +97,8 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
             writer.write(' '.join(pred))
             writer.write('\n************\n\n')
             k = k + 1
+            val_wmd.update(w2v_model.wmdistance(pred, target), 1)
+
         
         bleu_value = get_bleu(pred_list, target_list)
         val_bleu.update(bleu_value, 1)
@@ -118,16 +130,20 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
     writer.close()
     
     logger.info('AVG Evaluation BLEU_score is:%s\n'%(str(val_bleu.avg)))
+    logger.info('AVG Evaluation WMD_score is:%s\n'%(str(val_wmd.avg)))
     print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, Senti-Loss %9.4f"
                 %(Total_loss.data[0]/cnt, Total_NLL_loss.data[0]/cnt, Total_KL_loss.data[0]/cnt, Total_sentiment_loss.data[0]/cnt))
     
     # logger.info('\n')
     size = len(eval_iter.dataset)
-    accuracy = 100.0 * senti_corrects/size    
+    accuracy = float(100.0 * senti_corrects/size)
     print('Evaluation acc: {:.4f}%({}/{}) \n'.format(accuracy, senti_corrects, size))
 
-    if accuracy > Best_acc or val_bleu.avg > Best_Self_BLEU:
-        save_path = 'saved_model/yelp_acc_' + str(float(accuracy)) + '_bleu_'+str(val_bleu.avg)+'_.pt'
+    if accuracy > Best_acc or val_bleu.avg > Best_BLEU or val_wmd.avg > Best_WMD :
+        Best_acc  = accuracy
+        Best_BLEU = val_bleu.avg
+        Best_WMD  = val_wmd.avg 
+        save_path = 'saved_model/yelp_acc_'+str(accuracy)+'_bleu_'+str(val_bleu.avg)+'_wmd_'+str(val_wmd.avg)+'_.pt'
         torch.save(model.state_dict(), save_path)
         logger.info('Save model to ' + save_path)
 
@@ -141,6 +157,7 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
     tensor    = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.Tensor
     step      = 0
     cur_epoch = 0
+    w2v_model = Word2Vec.load("yelp_word2vec.model")
     for epoch in range(args.num_epoch):
         model.train()
         tracker = defaultdict(tensor)
@@ -166,7 +183,6 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
                 length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
 
             logp           = torch.argmax(logp, dim=2)
-
             sentiment      = sentiment_classifier(logp)
             sentiment_loss = F.cross_entropy(sentiment, label)
             loss           = (NLL_loss + KL_weight * KL_loss + sentiment_loss)/batch_size
@@ -182,7 +198,7 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
 
                 
             if step % 1000 == 0 and step > 0:
-                eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_classifier)
+                eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_classifier, w2v_model)
 
                 model.train()
             iteration += 1
