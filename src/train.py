@@ -124,6 +124,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
     # logger.info('\n')
     size = len(eval_iter.dataset)
     accuracy = 100.0 * senti_corrects/size
+    accuracy = 1.0 - accuracy
     print('Evaluation acc: {:.4f}%({}/{}) \n'.format(accuracy, senti_corrects, size))
 
     if accuracy > Best_acc or val_bleu.avg > Best_Self_BLEU:
@@ -172,7 +173,7 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
             print(label.size())
             print(type(label))
 
-            
+
             sentiment      = sentiment_classifier(logp)
             sentiment_loss = F.cross_entropy(sentiment, label)
             loss           = (NLL_loss + KL_weight * KL_loss + sentiment_loss)/batch_size
