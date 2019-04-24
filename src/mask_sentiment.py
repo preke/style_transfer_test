@@ -105,7 +105,7 @@ def mask_ref():
                 word_list = ['<pos>' if lancaster_stemmer.stem(i) in pos_lex_set else i for i in word_list]
             if list_[0] == '0': # negative
                 word_list = ['<neg>' if lancaster_stemmer.stem(i) in neg_lex_set else i for i in word_list]
-            reference_writer.write(list_[0] + '\t' + ' '.join(tmp_wlist) + '\t' + ' '.join(word_list) + list_[2] + '\n')
+            reference_writer.write(list_[0] + '\t' + ' '.join(word_list) + '\t' + list_[2])
     reference_writer.close()
 
 
