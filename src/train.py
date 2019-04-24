@@ -65,14 +65,14 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
         cnt += 1
 
         
-        mask_sample  = batch.mask_text[0]
-        mask_feature = Variable(mask_sample)
-        length     = batch.mask_text[1]
-        length     = torch.add(length, -1)
-        mask_input   = mask_feature[:, :-1]
-
-        target     = batch.target[0]
-        label      = batch.label
+        mask_sample         = batch.mask_text[0]
+        mask_feature        = Variable(mask_sample)
+        length              = batch.mask_text[1]
+        length              = torch.add(length, -1)
+        mask_input          = mask_feature[:, :-1]
+        batch_size          = len(mask_sample)
+        target              = batch.target[0]
+        label               = batch.label
         logp, mean, logv, z = model(mask_input, length, mask_input, False)
         
         
