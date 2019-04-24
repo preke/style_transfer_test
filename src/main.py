@@ -114,7 +114,7 @@ print(type(args.pretrained_weight))
 args.pos_rep, args.neg_rep = get_pos_neg_rep(args.word_2_index, args.pretrained_weight)
 
 ## Build CNN sentiment classifier
-# args.cnn_snapshot = './cnn/yelp_97.pt'
+args.cnn_snapshot = './cnn/yelp_98.pt'
 # args.cnn_snapshot = './cnn/test_best_steps_900.pt'
 
 cnn = model.CNN_Text(args)
@@ -154,29 +154,29 @@ vae_model = SentenceVAE(
     pre_embedding       = args.pretrained_weight,
     args                = args)
 
-# vae_model = vae_model.cuda()
-# # args.snapshot = './saved_model/epoch_24_batch_12743_.pt'
-# if args.snapshot is not None:
-#     logger.info('Load model from' + args.snapshot)
-#     vae_model.load_state_dict(torch.load(args.snapshot))
-#     vae_model = vae_model.cuda()
-#     eval_vae(model                = vae_model,
-#              eval_iter            = dev_iter, 
-#              args                 = args, 
-#              step                 = 0, 
-#              cur_epoch            = 0,
-#              iteration            = 0, 
-#              sentiment_classifier = cnn)
+vae_model = vae_model.cuda()
+# args.snapshot = './saved_model/epoch_24_batch_12743_.pt'
+if args.snapshot is not None:
+    logger.info('Load model from' + args.snapshot)
+    vae_model.load_state_dict(torch.load(args.snapshot))
+    vae_model = vae_model.cuda()
+    eval_vae(model                = vae_model,
+             eval_iter            = dev_iter, 
+             args                 = args, 
+             step                 = 0, 
+             cur_epoch            = 0,
+             iteration            = 0, 
+             sentiment_classifier = cnn)
 
-# else:
-#     logger.info('Train model begin...')
-#     try:
-#         cnn.eval()
-#         train_vae(train_iter=train_iter, eval_iter=dev_iter, model=vae_model, args=args, sentiment_classifier=cnn)
-#     except KeyboardInterrupt:
-#         print(traceback.print_exc())
-#         print('\n' + '-' * 89)
-#         print('Exiting from training early')
+else:
+    logger.info('Train model begin...')
+    try:
+        cnn.eval()
+        train_vae(train_iter=train_iter, eval_iter=test_iter, model=vae_model, args=args, sentiment_classifier=cnn)
+    except KeyboardInterrupt:
+        print(traceback.print_exc())
+        print('\n' + '-' * 89)
+        print('Exiting from training early')
 
 
 
