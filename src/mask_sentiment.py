@@ -80,9 +80,36 @@ def mask():
             train_writer.write(list_[0] + '\t' + ' '.join(tmp_wlist) + '\t' + ' '.join(word_list) + '\n')
     train_writer.close()
 
+def mask_ref():
+    lancaster_stemmer = LancasterStemmer()
+    pos_lex_list = []
+    neg_lex_list = []
+    with open(POS_LEXICON, 'r') as reader:
+        for line in reader:
+            pos_lex_list.append(lancaster_stemmer.stem(word_tokenize(line)[0]))
+
+    with open(NEG_LEXICON, 'r') as reader:
+        for line in reader:
+            neg_lex_list.append(lancaster_stemmer.stem(word_tokenize(line)[0]))
+
+    pos_lex_set = set(pos_lex_list)
+    neg_lex_set = set(neg_lex_list)
+
+    reference_writer = open(MASKED_reference_PATH, 'w')
+    with open(reference_PATH, 'r') as reader:
+        for line in reader:
+            list_ = line.split('\t')
+            word_list = word_tokenize(punctuate(list_[1].lower()))
+            tmp_wlist = word_list
+            if list_[0] == '1': # positive
+                word_list = ['<pos>' if lancaster_stemmer.stem(i) in pos_lex_set else i for i in word_list]
+            if list_[0] == '0': # negative
+                word_list = ['<neg>' if lancaster_stemmer.stem(i) in neg_lex_set else i for i in word_list]
+            reference_writer.write(list_[0] + '\t' + ' '.join(tmp_wlist) + '\t' + ' '.join(word_list) + list_[2] + '\n')
+    reference_writer.close()
 
 
 
-mask()
+mask_ref()
 
 
