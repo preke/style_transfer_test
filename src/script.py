@@ -57,29 +57,29 @@ YELP_PATH = '../data/yelp/'
 
 
 
-# YELP_train = []
+YELP_train = []
 # YELP_test  = []
 
-# with open(YELP_PATH+'sentiment.train.1', 'r') as reader:
-#     for line in reader:
-#         new_line = '1\t' + line
-#         YELP_train.append(new_line)
+with open(YELP_PATH+'sentiment.train.1', 'r') as reader:
+    for line in reader:
+        new_line = '1\t' + line
+        YELP_train.append(new_line)
 
-# with open(YELP_PATH+'sentiment.dev.1', 'r') as reader:
-#     for line in reader:
-#         new_line = '1\t' + line
-#         YELP_train.append(new_line)
+with open(YELP_PATH+'sentiment.dev.1', 'r') as reader:
+    for line in reader:
+        new_line = '1\t' + line
+        YELP_train.append(new_line)
 
 
-# with open(YELP_PATH+'sentiment.train.0', 'r') as reader:
-#     for line in reader:
-#         new_line = '0\t' + line
-#         YELP_train.append(new_line)
+with open(YELP_PATH+'sentiment.train.0', 'r') as reader:
+    for line in reader:
+        new_line = '0\t' + line
+        YELP_train.append(new_line)
 
-# with open(YELP_PATH+'sentiment.dev.0', 'r') as reader:
-#     for line in reader:
-#         new_line = '0\t' + line
-#         YELP_train.append(new_line)
+with open(YELP_PATH+'sentiment.dev.0', 'r') as reader:
+    for line in reader:
+        new_line = '0\t' + line
+        YELP_train.append(new_line)
 
 # with open(YELP_PATH+'sentiment.test.1', 'r') as reader:
 #     for line in reader:
@@ -91,16 +91,16 @@ YELP_PATH = '../data/yelp/'
 #         new_line = '0\t' + line
 #         YELP_test.append(new_line)
 
-# random.shuffle(YELP_train)
-# print (len(YELP_train))
+random.shuffle(YELP_train)
+print (len(YELP_train))
 
 # random.shuffle(YELP_test)
 # print (len(YELP_test))
 
-# writer = open(YELP_PATH + 'train.tsv', 'w')
-# for line in YELP_train:
-#     writer.write(line)
-# writer.close()
+writer = open(YELP_PATH + 'train.tsv', 'w')
+for line in YELP_train:
+    writer.write(line)
+writer.close()
 
 # writer = open(YELP_PATH + 'test.tsv', 'w')
 # for line in YELP_test:
@@ -154,7 +154,7 @@ def punctuate(text):
             ans += letter
     return ans
 
-with open(YELP_PATH+'train.tsv', 'w') as reader:
+with open(YELP_PATH+'train.tsv', 'r') as reader:
     for line in reader:
         sentence = line.split('\t')[1]
         sentence = punctuate(sentence)
