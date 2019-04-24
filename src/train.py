@@ -197,7 +197,7 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
                 %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight, sentiment_loss.data[0]/batch_size))
 
                 
-            if step % 1000 == 0 and step > 0:
+            if step % 500 == 0 and step > 0:
                 eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_classifier, w2v_model)
 
                 model.train()
