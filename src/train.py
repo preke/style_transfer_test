@@ -145,6 +145,9 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
             print('Save model to ' + save_path)
 
 
+            
+
+
 def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
     save_dir = "../model/"
     if not os.path.exists(save_dir):
