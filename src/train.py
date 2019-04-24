@@ -85,16 +85,16 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
         pred_list = []
         target_list = []
         for i in logp:
-            target = [args.index_2_word[int(l)] for l in sample[k]][1:int(length[k])]
+            target_ = [args.index_2_word[int(l)] for l in target[k]][1:int(length[k])]
             pred   = [args.index_2_word[int(j)] for j in i]
             pred_list.append(pred)
-            target_list.append(target)
-            writer.write(' '.join(target))
+            target_list.append(target_)
+            writer.write(' '.join(target_))
             writer.write('\n=============\n')
             writer.write(' '.join(pred))
             writer.write('\n************\n\n')
             k = k + 1
-            val_wmd.update(w2v_model.wmdistance(pred, target), 1)
+            val_wmd.update(w2v_model.wmdistance(pred, target_), 1)
 
         
         bleu_value = get_bleu(pred_list, target_list)
