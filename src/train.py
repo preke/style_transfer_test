@@ -124,6 +124,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
     # logger.info('\n')
     size = len(eval_iter.dataset)
     accuracy = 100.0 * senti_corrects/size
+    # convert the label of transfered sentences
     accuracy = 1.0 - accuracy
     print('Evaluation acc: {:.4f}%({}/{}) \n'.format(accuracy, senti_corrects, size))
 
@@ -167,12 +168,6 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
                 length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
 
             logp           = torch.argmax(logp, dim=2)
-
-
-            # invert the label to the target label
-            print(label.size())
-            print(type(label))
-
 
             sentiment      = sentiment_classifier(logp)
             sentiment_loss = F.cross_entropy(sentiment, label)
