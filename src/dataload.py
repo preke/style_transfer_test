@@ -64,16 +64,17 @@ def gen_test_iter(path, text_field, label_field, args):
 
 
 
-def load_data(train_path, dev_path, args):
+def load_data(train_path, dev_path, ref_path, args):
     text_field  = data.Field(sequential=True, use_vocab=True, batch_first=True, 
             lower=True, include_lengths=True, preprocessing=data.Pipeline(clean_str), fix_length=args.max_length,
             pad_token='<PAD>', unk_token='<UNK>', init_token='<SOS>', eos_token='<EOS>')
     label_field = data.Field(batch_first=True, sequential=False, pad_token=None, unk_token=None)
     logger.info('Loading Train data begin...')
     train_data, train_iter = gen_iter(train_path, text_field, label_field, args)
-    logger.info('Loading Validation data begin...')
     dev_data, dev_iter = gen_test_iter(dev_path, text_field, label_field, args)
-    return text_field, label_field, train_data, train_iter, dev_data, dev_iter
+    logger.info('Loading Validation data begin...')
+    test_data, test_iter = gen_test_iter(ref_path, text_field, label_field, args)
+    return text_field, label_field, train_data, train_iter, dev_data, dev_iter, test_data, test_iter
 
 
 def gen_pos_neg_iter(path, text_field, args):
