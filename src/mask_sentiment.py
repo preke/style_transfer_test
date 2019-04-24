@@ -101,9 +101,9 @@ def mask_ref():
             list_ = line.split('\t')
             word_list = word_tokenize(punctuate(list_[1].lower()))
             tmp_wlist = word_list
-            if list_[0] == '1': # positive
+            if list_[0] == '0': # positive
                 word_list = ['<pos>' if lancaster_stemmer.stem(i) in pos_lex_set else i for i in word_list]
-            if list_[0] == '0': # negative
+            if list_[0] == '1': # negative
                 word_list = ['<neg>' if lancaster_stemmer.stem(i) in neg_lex_set else i for i in word_list]
             reference_writer.write(list_[0] + '\t' + ' '.join(word_list) + '\t' + list_[2])
     reference_writer.close()
