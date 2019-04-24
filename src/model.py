@@ -122,7 +122,6 @@ class SentenceVAE(nn.Module):
 
 
     def mask_to_sentiment(self, input_sequence, input_embedding, is_train):
-        decoder_input_embedding = []
         for i in range(input_sequence.size()[0]):
             for j in range(input_sequence.size()[1]):
                 if self.args.index_2_word[input_sequence[i, j]] == 'pos':
@@ -135,6 +134,7 @@ class SentenceVAE(nn.Module):
                         input_embedding[i, j, :] = self.args.neg_rep
                     else:
                         input_embedding[i, j, :] = self.args.pos_rep
+        input_embedding = Variable(input_embedding)
         return input_embedding
 
     def _sample(self, dist, mode='greedy'):

@@ -101,9 +101,9 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
         Total_sentiment_loss  += float(sentiment_loss)/batch_size
         
 
-        # Add sentiment accuracy
+        # convert the label of transfered sentences
         senti_corrects += (torch.max(sentiment, 1)
-                     [1].view(label.size()).data == label.data).sum()
+                     [1].view(label.size()).data != label.data).sum()
 
 
         del loss
@@ -123,9 +123,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
     
     # logger.info('\n')
     size = len(eval_iter.dataset)
-    accuracy = 100.0 * senti_corrects/size
-    # convert the label of transfered sentences
-    accuracy = 1.0 - accuracy
+    accuracy = 100.0 * senti_corrects/size    
     print('Evaluation acc: {:.4f}%({}/{}) \n'.format(accuracy, senti_corrects, size))
 
     if accuracy > Best_acc or val_bleu.avg > Best_Self_BLEU:
