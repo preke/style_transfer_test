@@ -59,7 +59,7 @@ args.dropout      = 0.1
 
 
 args.rnn_type          = 'gru'
-args.word_dropout      = 0
+args.word_dropout      = 0.3
 args.embedding_dropout = 0.8
 args.latent_size       = 16
 args.num_layers        = 1

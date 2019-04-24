@@ -46,6 +46,24 @@ def gen_iter(path, text_field, label_field, args):
                     repeat            = False)
     return tmp_data, tmp_iter
 
+
+def gen_test_iter(path, text_field, label_field, args):
+    '''
+    Load TabularDataset from path,
+    then convert it into a iterator
+    return TabularDataset and iterator
+    '''
+    tmp_data = data.TabularDataset(path = path, format='tsv', fields=[('label', label_field), ('mask_text', text_field), ('target', text_field)])
+    tmp_iter = data.BucketIterator(tmp_data,
+                    batch_size        = args.batch_size,
+                    sort_key          = lambda x: len(x.mask_text),
+                    sort_within_batch = True,
+                    device            = args.device,
+                    repeat            = False)
+    return tmp_data, tmp_iter
+
+
+
 def load_data(train_path, dev_path, args):
     text_field  = data.Field(sequential=True, use_vocab=True, batch_first=True, 
             lower=True, include_lengths=True, preprocessing=data.Pipeline(clean_str), fix_length=args.max_length,
@@ -54,7 +72,7 @@ def load_data(train_path, dev_path, args):
     logger.info('Loading Train data begin...')
     train_data, train_iter = gen_iter(train_path, text_field, label_field, args)
     logger.info('Loading Validation data begin...')
-    dev_data, dev_iter = gen_iter(dev_path, text_field, label_field, args)
+    dev_data, dev_iter = gen_test_iter(dev_path, text_field, label_field, args)
     return text_field, label_field, train_data, train_iter, dev_data, dev_iter
 
 
