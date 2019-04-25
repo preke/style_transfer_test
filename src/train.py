@@ -200,7 +200,7 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
             #     logp[i] = gumbel_softmax(logp[i], temp, args)
             
             logp = gumbel_softmax_sample(logp, temp)
-            print(logp.size())
+            # print(logp.size())
             # one-hot vector to choose words
             logp           = torch.argmax(logp, dim=2)
             
