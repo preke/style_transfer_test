@@ -228,8 +228,7 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
 
 def sample_gumbel(shape, eps=1e-20):
     U = torch.rand(shape)
-    if args.cuda:
-        U = U.cuda()
+    U = U.cuda()
     return -torch.log(-torch.log(U + eps) + eps)
 
 
@@ -244,6 +243,8 @@ def gumbel_softmax(logits, temperature, hard=False):
     input: [*, n_class]
     return: flatten --> [*, n_class] an one-hot vector
     """
+    categorical_dim = 2
+    latent_dim      = 200
     y = gumbel_softmax_sample(logits, temperature)
     
     if not hard:
