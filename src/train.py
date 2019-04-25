@@ -198,7 +198,7 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
             print(logp.size())
             origin_logp           = torch.argmax(logp, dim=2)
             print(origin_logp.size())
-            logp = gumbel_softmax(logp, temp)
+            logp = gumbel_softmax(logp, temp, args)
             print(logp.size())
             time.sleep(100)
             sentiment      = sentiment_classifier(logp)
@@ -237,16 +237,17 @@ def gumbel_softmax_sample(logits, temperature):
     return F.softmax(y / temperature, dim=-1)
 
 
-def gumbel_softmax(logits, temperature, hard=False):
+def gumbel_softmax(logits, temperature, args):
+    hard = False
     """
     ST-gumple-softmax
     input: [*, n_class]
     return: flatten --> [*, n_class] an one-hot vector
     """
-    categorical_dim = 2
+    categorical_dim = args.vocab_size
     latent_dim      = 200
     y = gumbel_softmax_sample(logits, temperature)
-    
+    print(y.size())
     if not hard:
         return y.view(-1, latent_dim * categorical_dim)
 
