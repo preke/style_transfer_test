@@ -195,14 +195,11 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
             
             if iteration % 100 == 1:
                 temp = np.maximum(temp * np.exp(-ANNEAL_RATE * iteration), temp_min)
-            # print(logp.size())
-            # for i in range(logp.size(0)):
-            #     logp[i] = gumbel_softmax(logp[i], temp, args)
             
             logp = gumbel_softmax_sample(logp, temp)
-            # print(logp.size())
-            # one-hot vector to choose words
-            logp           = torch.argmax(logp, dim=2)
+            # nearly one-hot vector to choose words
+            arg_max_logp = torch.argmax(logp, dim=2)
+            logp = logp + (arg_max_logp - logp)
             
             sentiment      = sentiment_classifier(logp)
             sentiment_loss = F.cross_entropy(sentiment, label)
