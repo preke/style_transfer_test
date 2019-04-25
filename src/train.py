@@ -196,11 +196,12 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
             if iteration % 100 == 1:
                 temp = np.maximum(temp * np.exp(-ANNEAL_RATE * iteration), temp_min)
             print(logp.size())
-            origin_logp           = torch.argmax(logp, dim=2)
-            print(origin_logp.size())
-            logp = gumbel_softmax(logp, temp, args)
-            print(logp.size())
-            time.sleep(100)
+            for i in range(logp.size(0)):
+                logp[i] = gumbel_softmax(logp[i], temp, args)
+            
+            # one-hot vector to choose words
+            logp           = torch.argmax(logp, dim=2)
+            
             sentiment      = sentiment_classifier(logp)
             sentiment_loss = F.cross_entropy(sentiment, label)
             loss           = (NLL_loss + KL_weight * KL_loss + sentiment_loss)/batch_size
@@ -245,7 +246,7 @@ def gumbel_softmax(logits, temperature, args):
     return: flatten --> [*, n_class] an one-hot vector
     """
     categorical_dim = args.vocab_size
-    latent_dim      = 200
+    latent_dim      = 1
     y = gumbel_softmax_sample(logits, temperature)
     print(y.size())
     if not hard:
