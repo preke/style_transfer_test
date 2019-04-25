@@ -145,7 +145,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
             print('Save model to ' + save_path)
 
 
-            
+
 
 
 def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
@@ -160,6 +160,13 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
     Best_acc  = 0.0
     Best_BLEU = 0.0
     Best_WMD  = 0.0
+
+    # gumbel softmax
+    temp        = 1.0
+    temp_min    = 0.5
+    ANNEAL_RATE = 0.00003
+    
+
     w2v_model = Word2Vec.load("yelp_word2vec.model")
     for epoch in range(args.num_epoch):
         model.train()
@@ -185,7 +192,15 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
             NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
                 length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
 
-            logp           = torch.argmax(logp, dim=2)
+            
+            if iteration % 100 == 1:
+                temp = np.maximum(temp * np.exp(-ANNEAL_RATE * iteration), temp_min)
+            print(logp.size())
+            origin_logp           = torch.argmax(logp, dim=2)
+            print(origin_logp.size())
+            logp = gumbel_softmax(logp, temp)
+            print(logp.size())
+            time.sleep(100)
             sentiment      = sentiment_classifier(logp)
             sentiment_loss = F.cross_entropy(sentiment, label)
             loss           = (NLL_loss + KL_weight * KL_loss + sentiment_loss)/batch_size
@@ -207,6 +222,43 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
                 model.train()
             iteration += 1
         cur_epoch += 1
+
+
+
+
+def sample_gumbel(shape, eps=1e-20):
+    U = torch.rand(shape)
+    if args.cuda:
+        U = U.cuda()
+    return -torch.log(-torch.log(U + eps) + eps)
+
+
+def gumbel_softmax_sample(logits, temperature):
+    y = logits + sample_gumbel(logits.size())
+    return F.softmax(y / temperature, dim=-1)
+
+
+def gumbel_softmax(logits, temperature, hard=False):
+    """
+    ST-gumple-softmax
+    input: [*, n_class]
+    return: flatten --> [*, n_class] an one-hot vector
+    """
+    y = gumbel_softmax_sample(logits, temperature)
+    
+    if not hard:
+        return y.view(-1, latent_dim * categorical_dim)
+
+    shape = y.size()
+    _, ind = y.max(dim=-1)
+    y_hard = torch.zeros_like(y).view(-1, shape[-1])
+    y_hard.scatter_(1, ind.view(-1, 1), 1)
+    y_hard = y_hard.view(*shape)
+    # Set gradients w.r.t. y_hard gradients w.r.t. y
+    y_hard = (y_hard - y).detach() + y
+    return y_hard.view(-1, latent_dim * categorical_dim)
+
+
 
 def kl_anneal_function(anneal_function, step, k, x0):
     if anneal_function == 'logistic':
@@ -306,6 +358,10 @@ def save_cnn(model, save_dir, save_prefix, steps):
     save_prefix = os.path.join(save_dir, save_prefix)
     save_path = '{}_steps_{}.pt'.format(save_prefix, steps)
     torch.save(model.state_dict(), save_path)
+
+
+
+
 
 
 
