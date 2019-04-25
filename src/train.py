@@ -195,10 +195,12 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
             
             if iteration % 100 == 1:
                 temp = np.maximum(temp * np.exp(-ANNEAL_RATE * iteration), temp_min)
-            print(logp.size())
-            for i in range(logp.size(0)):
-                logp[i] = gumbel_softmax(logp[i], temp, args)
+            # print(logp.size())
+            # for i in range(logp.size(0)):
+            #     logp[i] = gumbel_softmax(logp[i], temp, args)
             
+            logp = gumbel_softmax(logp, temp, args)
+            print(logp.size())
             # one-hot vector to choose words
             logp           = torch.argmax(logp, dim=2)
             
@@ -248,7 +250,6 @@ def gumbel_softmax(logits, temperature, args):
     categorical_dim = args.vocab_size
     latent_dim      = 1
     y = gumbel_softmax_sample(logits, temperature)
-    print(y.size())
     if not hard:
         return y.view(-1, latent_dim * categorical_dim)
 
