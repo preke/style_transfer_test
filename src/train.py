@@ -48,7 +48,7 @@ from collections import OrderedDict, defaultdict
 
 
 def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_classifier, w2v_model,
-    Best_acc, Best_BLEU, Best_WMD):
+    Best_acc, Best_BLEU, Best_WMD, temp):
     model.eval()
     
     Total_loss           = torch.tensor(0.0).cuda()
@@ -221,7 +221,7 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
                 
             if step % 500 == 0 and step > 0:
                 eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_classifier, w2v_model,
-                    Best_acc, Best_BLEU, Best_WMD)
+                    Best_acc, Best_BLEU, Best_WMD, temp)
 
                 model.train()
             iteration += 1
