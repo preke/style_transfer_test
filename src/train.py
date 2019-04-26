@@ -80,7 +80,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
 
         # logp = torch.argmax(logp, dim=2)
         logp = gumbel_softmax_sample(logp, temp)
-        argmax_logp = torch.argmax(logp, dim=2)
+        arg_max_logp = torch.argmax(logp, dim=2)
 
 
         k = 0 
