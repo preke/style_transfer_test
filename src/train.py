@@ -78,13 +78,16 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
         NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
             length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
 
-        logp = torch.argmax(logp, dim=2)
+        # logp = torch.argmax(logp, dim=2)
+        logp = gumbel_softmax_sample(logp, temp)
+        argmax_logp = torch.argmax(logp, dim=2)
+
 
         k = 0 
         pred_list = []
         target_list = []
-        for i in logp:
-            target_ = [args.index_2_word[int(l)] for l in target[k]][1:int(length[k])]
+        for i in arg_max_logp:
+            target_ = [args.index_2_word[int(l)] for l in target[k]]
             pred   = [args.index_2_word[int(j)] for j in i]
             pred_list.append(pred)
             target_list.append(target_)
@@ -99,7 +102,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
         bleu_value = get_bleu(pred_list, target_list)
         val_bleu.update(bleu_value, 1)
 
-        sentiment      = sentiment_classifier(logp)
+        sentiment      = sentiment_classifier(arg_max_logp)
         sentiment_loss = F.cross_entropy(sentiment, label)
         loss           = (NLL_loss + KL_weight * KL_loss + sentiment_loss)/batch_size
         
@@ -119,7 +122,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
         del NLL_loss
         del KL_loss
         del KL_weight
-        del logp
+        del arg_max_logp
         del mean
         del logv
         del z
@@ -135,7 +138,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
     accuracy = float(100.0 * float(senti_corrects)/size)
     print('Evaluation acc: {:.4f}%({}/{}) \n'.format(accuracy, senti_corrects, size))
 
-    if accuracy > Best_acc or val_bleu.avg > Best_BLEU or val_wmd.avg > Best_WMD: 
+    if accuracy > Best_acc or val_bleu.avg > Best_BLEU or val_wmd.avg < Best_WMD: 
         Best_acc  = accuracy
         Best_BLEU = val_bleu.avg
         Best_WMD  = val_wmd.avg
@@ -159,7 +162,7 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
     cur_epoch = 0
     Best_acc  = 0.0
     Best_BLEU = 0.0
-    Best_WMD  = 0.0
+    Best_WMD  = 100.0
 
     # gumbel softmax
     temp        = 1.0
