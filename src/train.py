@@ -339,7 +339,7 @@ def train_cnn(train_iter, dev_iter, model, args):
                         with open('adabound_loss.txt', 'w') as wt:
                             steps = 100
                             for loss in loss_list: 
-                                wt.write(str(steps) + '_' + str(loss))
+                                wt.write(str(steps) + '_' + str(float(loss)))
                                 steps += 100
                         break
             elif steps % args.save_interval == 0:
