@@ -295,9 +295,9 @@ def train_cnn(train_iter, dev_iter, model, args):
     if args.cuda:
         model.cuda()
     parameters = list(filter(lambda p: p.requires_grad, model.parameters()))
-    # optimizer = torch.optim.Adam(parameters, lr=args.lr)
+    optimizer = torch.optim.Adam(parameters, lr=args.lr)
     # optimizer = torch.optim.SGD(parameters, lr=args.lr)
-    optimizer = adabound.AdaBound(parameters, lr=args.lr, final_lr=0.1)
+    # optimizer = adabound.AdaBound(parameters, lr=args.lr, final_lr=0.1)
     steps = 0
     best_acc = 0
     best_loss = 10000
@@ -336,7 +336,7 @@ def train_cnn(train_iter, dev_iter, model, args):
                 else:
                     if steps - last_step >= args.early_stop:
                         print('early stop by {} steps.'.format(args.early_stop))
-                        with open('adabound_loss.txt', 'w') as wt:
+                        with open('sgd_loss.txt', 'w') as wt:
                             steps = 100
                             for loss in loss_list: 
                                 wt.write(str(steps) + '_' + str(float(loss)) + '\n')
