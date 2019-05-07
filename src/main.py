@@ -79,7 +79,7 @@ args.kernel_sizes  = '3'
 args.kernel_sizes  = [int(k) for k in args.kernel_sizes.split(',')]
 args.cnn_save_dir  = './cnn/'
 args.num_class     = 2
-args.cnn_lr        = 0.0001
+args.cnn_lr        = 0.01
 args.early_stop    = 1000
 
 args.test_interval = 100
@@ -118,7 +118,6 @@ args.pos_rep, args.neg_rep = get_pos_neg_rep(args.word_2_index, args.pretrained_
 # args.cnn_snapshot = './cnn/yelp_98.pt'
 # args.cnn_snapshot = './cnn/test_best_steps_900.pt'
 t_begin = datetime.datetime.now()
-
 cnn = model.CNN_Text(args)
 if args.cnn_snapshot is not None:
     logger.info('Load CNN classifier from' + args.cnn_snapshot)
