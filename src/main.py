@@ -79,8 +79,8 @@ args.kernel_sizes  = '3'
 args.kernel_sizes  = [int(k) for k in args.kernel_sizes.split(',')]
 args.cnn_save_dir  = './cnn/'
 args.num_class     = 2
-args.cnn_lr        = 0.01
-args.early_stop    = 1000
+args.cnn_lr        = 0.001
+args.early_stop    = 2000
 
 args.test_interval = 100
 args.save_interval = 1000

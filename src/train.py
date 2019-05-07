@@ -300,7 +300,9 @@ def train_cnn(train_iter, dev_iter, model, args):
     optimizer = adabound.AdaBound(parameters, lr=args.lr, final_lr=0.1)
     steps = 0
     best_acc = 0
+    best_loss = 10000
     last_step = 0
+    loss_list = []
     model.train()
     for epoch in range(1, args.epochs+1):
         for batch in train_iter:
@@ -323,16 +325,23 @@ def train_cnn(train_iter, dev_iter, model, args):
                                                                              accuracy,
                                                                              corrects,
                                                                              batch.batch_size))
-            if steps % args.test_interval == 0:
-                dev_acc = eval_cnn(dev_iter, model, args)
-                if dev_acc > best_acc:
-                    best_acc = dev_acc
+            if steps % args.test_interval == 0 and steps != 0:
+                acc, avg_loss = eval_cnn(dev_iter, model, args)
+                loss_list.append(avg_loss)
+                if avg_loss < best_loss:
+                    best_loss = avg_loss
                     last_step = steps
                     if args.save_best:
                         save_cnn(model, args.cnn_save_dir, 'best', steps)
                 else:
                     if steps - last_step >= args.early_stop:
                         print('early stop by {} steps.'.format(args.early_stop))
+                        with open('adabound_loss.txt', 'w') as wt:
+                            steps = 100
+                            for loss in loss_list: 
+                                wt.write(str(steps) + '_' + str(loss))
+                                steps += 100
+                        break
             elif steps % args.save_interval == 0:
                 save(model, args.cnn_save_dir, 'snapshot', steps)
 
@@ -360,7 +369,7 @@ def eval_cnn(data_iter, model, args):
                                                                        accuracy, 
                                                                        corrects, 
                                                                        size))
-    return accuracy
+    return accuracy, avg_loss
 
 
 def save_cnn(model, save_dir, save_prefix, steps):
