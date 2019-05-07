@@ -295,7 +295,8 @@ def train_cnn(train_iter, dev_iter, model, args):
     if args.cuda:
         model.cuda()
     parameters = list(filter(lambda p: p.requires_grad, model.parameters()))
-    optimizer = torch.optim.Adam(parameters, lr=args.lr)
+    # optimizer = torch.optim.Adam(parameters, lr=args.lr)
+    optimizer = torch.optim.SGD(parameters, lr=args.lr)
     steps = 0
     best_acc = 0
     last_step = 0
