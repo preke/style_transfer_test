@@ -62,7 +62,6 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
     val_wmd  = AverageMeter()
     for batch in eval_iter:
         cnt += 1
-
         
         mask_sample         = batch.mask_text[0]
         mask_feature        = Variable(mask_sample)
@@ -82,7 +81,6 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
         logp = gumbel_softmax_sample(logp, temp)
         arg_max_logp = torch.argmax(logp, dim=2)
 
-
         k = 0 
         pred_list = []
         target_list = []
@@ -97,7 +95,6 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
             writer.write('\n************\n\n')
             k = k + 1
             val_wmd.update(w2v_model.wmdistance(pred, target_), 1)
-
         
         bleu_value = get_bleu(pred_list, target_list)
         val_bleu.update(bleu_value, 1)
@@ -166,7 +163,7 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
 
     # gumbel softmax
     temp        = 1.0
-    temp_min    = 0.5
+    temp_min    = 0.1
     ANNEAL_RATE = 0.00003
     
 
