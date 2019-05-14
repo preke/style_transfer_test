@@ -356,7 +356,7 @@ def eval_cnn(data_iter, model, args):
 
     size = len(data_iter.dataset)
     avg_loss /= size
-    accuracy = 100.0 * corrects/size
+    accuracy = 100.0 * float(corrects)/size
     print('\nEvaluation - loss: {:.6f}  acc: {:.4f}%({}/{}) \n'.format(avg_loss, 
                                                                        accuracy, 
                                                                        corrects, 
