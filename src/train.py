@@ -153,8 +153,8 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)    
     
-    # optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
-    optimizer = adabound.AdaBound(model.parameters, lr=args.lr, final_lr=0.1)
+    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    # optimizer = adabound.AdaBound(model.parameters, lr=args.lr, final_lr=0.1)
     tensor    = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.Tensor
     step      = 0
     cur_epoch = 0
