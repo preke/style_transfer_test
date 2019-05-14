@@ -334,12 +334,6 @@ def train_cnn(train_iter, dev_iter, model, args):
                 else:
                     if steps - last_step >= args.early_stop:
                         print('early stop by {} steps.'.format(args.early_stop))
-                        with open('sgd_loss.txt', 'w') as wt:
-                            steps = 100
-                            for loss in loss_list: 
-                                wt.write(str(steps) + '_' + str(float(loss)) + '\n')
-                                steps += 100
-                        break
             elif steps % args.save_interval == 0:
                 save(model, args.cnn_save_dir, 'snapshot', steps)
 
