@@ -170,7 +170,7 @@ if args.snapshot is not None:
 else:
     logger.info('Train model begin...')
     try:
-        # cnn.eval()
+        cnn.eval()
         train_vae(train_iter=train_iter, eval_iter=test_iter, model=vae_model, args=args, sentiment_classifier=cnn)
     except KeyboardInterrupt:
         print(traceback.print_exc())
