@@ -51,7 +51,7 @@ args = parser.parse_args()
 # Parameters setting
 args.grad_clip    = 2
 args.embed_dim    = 300
-args.hidden_dim   = 100
+args.hidden_dim   = 200
 args.batch_size   = 32
 args.lr           = 0.0005
 args.num_epoch    = 200
@@ -79,7 +79,7 @@ args.kernel_sizes  = '3'
 args.kernel_sizes  = [int(k) for k in args.kernel_sizes.split(',')]
 args.cnn_save_dir  = './cnn/'
 args.num_class     = 2
-args.cnn_lr        = 0.001
+args.cnn_lr        = 0.0001
 args.early_stop    = 3000
 
 args.test_interval = 100

@@ -153,7 +153,8 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)    
     
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    # optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+    optimizer = adabound.AdaBound(parameters, lr=args.lr, final_lr=0.1)
     tensor    = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.Tensor
     step      = 0
     cur_epoch = 0
@@ -293,8 +294,8 @@ def train_cnn(train_iter, dev_iter, model, args):
         model.cuda()
     parameters = list(filter(lambda p: p.requires_grad, model.parameters()))
     # optimizer = torch.optim.Adam(parameters, lr=args.lr)
-    optimizer = torch.optim.SGD(parameters, lr=args.lr)
-    # optimizer = adabound.AdaBound(parameters, lr=args.lr, final_lr=0.1)
+    # optimizer = torch.optim.SGD(parameters, lr=args.lr)
+    optimizer = adabound.AdaBound(parameters, lr=args.lr, final_lr=0.1)
     steps = 0
     best_acc = 0
     best_loss = 10000
