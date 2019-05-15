@@ -23,10 +23,11 @@ NEG_LEXICON       = '../data/negative.txt'
 # MASKED_TRAIN_PATH = '../data/yelp/train.mask'
 # MASKED_TEST_PATH  = '../data/yelp/test.mask'
 
+TRAIN_PATH        = '../data/yelp/n_train.tsv'
+MASKED_TRAIN_PATH = '../data/yelp/n_train.mask'
 
-
-reference_PATH         = '../data/yelp/reference.tsv'
-MASKED_reference_PATH  = '../data/yelp/reference.mask'
+# reference_PATH         = '../data/yelp/reference.tsv'
+# MASKED_reference_PATH  = '../data/yelp/reference.mask'
 
 def punctuate(text):
     ans = ""
@@ -53,18 +54,18 @@ def mask():
     pos_lex_set = set(pos_lex_list)
     neg_lex_set = set(neg_lex_list)
 
-    test_writer = open(MASKED_TEST_PATH, 'w')
-    with open(TEST_PATH, 'r') as reader:
-        for line in reader:
-            list_ = line.split('\t')
-            word_list = word_tokenize(punctuate(list_[1].lower()))
-            tmp_wlist = word_list
-            if list_[0] == '1': # positive
-                word_list = ['<pos>' if lancaster_stemmer.stem(i) in pos_lex_set else i for i in word_list]
-            if list_[0] == '0': # negative
-                word_list = ['<neg>' if lancaster_stemmer.stem(i) in neg_lex_set else i for i in word_list]
-            test_writer.write(list_[0] + '\t' + ' '.join(tmp_wlist) + '\t' + ' '.join(word_list) + '\n')
-    test_writer.close()
+    # test_writer = open(MASKED_TEST_PATH, 'w')
+    # with open(TEST_PATH, 'r') as reader:
+    #     for line in reader:
+    #         list_ = line.split('\t')
+    #         word_list = word_tokenize(punctuate(list_[1].lower()))
+    #         tmp_wlist = word_list
+    #         if list_[0] == '1': # positive
+    #             word_list = ['<pos>' if lancaster_stemmer.stem(i) in pos_lex_set else i for i in word_list]
+    #         if list_[0] == '0': # negative
+    #             word_list = ['<neg>' if lancaster_stemmer.stem(i) in neg_lex_set else i for i in word_list]
+    #         test_writer.write(list_[0] + '\t' + ' '.join(tmp_wlist) + '\t' + ' '.join(word_list) + '\n')
+    # test_writer.close()
 
     train_writer = open(MASKED_TRAIN_PATH, 'w')
     with open(TRAIN_PATH, 'r') as reader:
@@ -110,6 +111,6 @@ def mask_ref():
 
 
 
-mask_ref()
+mask()
 
 
