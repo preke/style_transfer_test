@@ -206,7 +206,8 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
             
             sentiment      = sentiment_classifier(argmax_logp)
             sentiment_loss = F.cross_entropy(sentiment, label)
-            loss           = (NLL_loss + KL_weight * KL_loss + sentiment_loss)/batch_size
+            # loss           = (NLL_loss + KL_weight * KL_loss + sentiment_loss)/batch_size
+            loss           = (NLL_loss + KL_weight * KL_loss)/batch_size
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
