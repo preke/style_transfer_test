@@ -140,7 +140,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
         Best_acc  = accuracy
         Best_BLEU = val_bleu.avg
         Best_WMD  = val_wmd.avg
-        if accuracy >= 70.0: 
+        if accuracy >= 0.0: 
             save_path = 'saved_model/yelp_acc_'+str(accuracy)+'_bleu_'+str(val_bleu.avg)+'_wmd_'+str(val_wmd.avg)+'_.pt'
             torch.save(model.state_dict(), save_path)
             print('Save model to ' + save_path)
