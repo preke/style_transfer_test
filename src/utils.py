@@ -138,7 +138,7 @@ def get_pos_neg_rep(word_2_index, pretrained_weight):
     with open(NEG_LEXICON, 'r') as reader:
         cnt = 0
         for line in reader:
-            if cnt % 2 == 0:
+            if cnt % 1 == 0:
                 neg_lex_list.append(word_tokenize(line)[0])
             cnt += 1
 
