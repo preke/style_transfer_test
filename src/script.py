@@ -166,8 +166,8 @@ from gensim.models import Word2Vec
 
 
 
-file = '../data/reference.tsv'
-fopen = open('../data/ref.data', 'w')
+file = '../data/yelp/reference.tsv'
+fopen = open('../data/yelp/ref.data', 'w')
 with open(file, 'r') as reader:
     for line in reader:
         list_ = line.split('\t')
