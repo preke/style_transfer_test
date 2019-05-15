@@ -133,7 +133,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
     
     # print('\n')
     size = len(eval_iter.dataset)
-    accuracy = float(100.0 * float(senti_corrects)/size)
+    accuracy = 1.0 - float(100.0 * float(senti_corrects)/size)
     print('Evaluation acc: {:.4f}%({}/{}) \n'.format(accuracy, senti_corrects, size))
 
     if accuracy > Best_acc or val_bleu.avg > Best_BLEU or val_wmd.avg < Best_WMD: 
