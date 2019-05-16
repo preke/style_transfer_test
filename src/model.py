@@ -96,8 +96,8 @@ class SentenceVAE(nn.Module):
         else:
             hidden = hidden.unsqueeze(0)
 
-        hidden = Variable(torch.zeros(hidden.size()))
-        
+        hidden = hidden - hidden
+
         input_embedding = self.embedding(decoder_input)
         input_embedding = self.mask_to_sentiment(decoder_input, input_embedding, is_train)
         input_embedding = input_embedding.cuda()
