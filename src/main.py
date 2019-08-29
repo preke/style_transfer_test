@@ -10,7 +10,7 @@ import datetime
 import time
 import traceback
 import model
-
+from gensim.models import Word2Vec
 
 
 # logging
