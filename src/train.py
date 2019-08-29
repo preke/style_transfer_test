@@ -178,8 +178,8 @@ def test_vae(model, test_iter, args, sentiment_classifier, w2v_model):
         label               = batch.label
         
         logp, mean, logv, z = model(mask_input, length, mask_input, True)
-        # logp = torch.argmax(logp, dim=2)
-        logp = gumbel_softmax_sample(logp, temp)
+        logp = torch.argmax(logp, dim=2)
+        # logp = gumbel_softmax_sample(logp, temp)
         arg_max_logp = torch.argmax(logp, dim=2)
 
         k = 0 
