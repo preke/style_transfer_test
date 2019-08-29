@@ -205,12 +205,12 @@ def test_vae(model, test_iter, args, sentiment_classifier, w2v_model):
 
         sentiment      = sentiment_classifier(arg_max_logp)
         sentiment_loss = F.cross_entropy(sentiment, label)
-        loss           = (NLL_loss + KL_weight * KL_loss + sentiment_loss)/batch_size
+        # loss           = (NLL_loss + KL_weight * KL_loss + sentiment_loss)/batch_size
         
-        Total_loss           += float(loss)
-        Total_NLL_loss       += float(NLL_loss)/batch_size
-        Total_KL_loss        += float(KL_loss)/batch_size
-        Total_sentiment_loss += float(sentiment_loss)/batch_size
+        # Total_loss           += float(loss)
+        # Total_NLL_loss       += float(NLL_loss)/batch_size
+        # Total_KL_loss        += float(KL_loss)/batch_size
+        # Total_sentiment_loss += float(sentiment_loss)/batch_size
         
         # convert the label of transfered sentences
         senti_corrects += (torch.max(sentiment, 1)
@@ -219,8 +219,8 @@ def test_vae(model, test_iter, args, sentiment_classifier, w2v_model):
     writer.close()    
     print('AVG TEST BLEU_score is:%s\n'%(str(test_bleu.avg)))
     print('AVG TEST WMD_score is:%s\n'%(str(test_wmd.avg)))
-    print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, Senti-Loss %9.4f"
-                %(Total_loss.data[0]/cnt, Total_NLL_loss.data[0]/cnt, Total_KL_loss.data[0]/cnt, Total_sentiment_loss.data[0]/cnt))
+    # print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, Senti-Loss %9.4f"
+                # %(Total_loss.data[0]/cnt, Total_NLL_loss.data[0]/cnt, Total_KL_loss.data[0]/cnt, Total_sentiment_loss.data[0]/cnt))
     
     size = len(test_iter.dataset)
     # accuracy = float(100.0 * (1.0 - float(senti_corrects)/size))
