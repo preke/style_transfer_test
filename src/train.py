@@ -49,32 +49,37 @@ from collections import OrderedDict, defaultdict
 
 def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_classifier, w2v_model,
     Best_acc, Best_BLEU, Best_WMD, temp):
+    '''
+    currently: test.mask, should be: reference.mask
+    Evaluation should transfer the sentiment;
+    Should be 
+    '''
+
     model.eval()
     
     Total_loss           = torch.tensor(0.0).cuda()
     Total_NLL_loss       = torch.tensor(0.0).cuda()
     Total_KL_loss        = torch.tensor(0.0).cuda()
     Total_sentiment_loss = torch.tensor(0.0).cuda()
+    
     cnt            = 0
     senti_corrects = 0
     writer         = open('res/yelp_vae_epoch_'+str(cur_epoch) + '_batch_' + str(iteration) + '_.txt', 'w')
     val_bleu = AverageMeter()
     val_wmd  = AverageMeter()
+
     for batch in eval_iter:
-        cnt += 1
-        
+        cnt += 1    
         mask_sample         = batch.mask_text[0]
         mask_feature        = Variable(mask_sample)
         length              = batch.mask_text[1]
         length              = torch.add(length, -1)
         mask_input          = mask_feature[:, :-1]
         batch_size          = len(mask_sample)
-        # if ref: batch.target[0]
-        # if dev: batch.text[0]
         target              = batch.text[0]
         label               = batch.label
         
-        logp, mean, logv, z = model(mask_input, length, mask_input, False) 
+        logp, mean, logv, z = model(mask_input, length, mask_input, False)
         NLL_loss, KL_loss, KL_weight = loss_fn(logp, target,
             length, mean, logv, args.anneal_function, step, args.k, args.x0, model.pad_idx)
 
@@ -87,7 +92,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
         target_list = []
         for i in arg_max_logp:
             target_ = [args.index_2_word[int(l)] for l in target[k]]
-            pred   = [args.index_2_word[int(j)] for j in i]
+            pred    = [args.index_2_word[int(j)] for j in i]
             pred_list.append(pred)
             target_list.append(target_)
             writer.write(' '.join(target_))
@@ -109,11 +114,9 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
         Total_KL_loss  += float(KL_loss)/batch_size
         Total_sentiment_loss  += float(sentiment_loss)/batch_size
         
-
         # convert the label of transfered sentences
         senti_corrects += (torch.max(sentiment, 1)
                      [1].view(label.size()).data == label.data).sum()
-
 
         del loss
         del sentiment_loss
@@ -131,9 +134,9 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
     print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, Senti-Loss %9.4f"
                 %(Total_loss.data[0]/cnt, Total_NLL_loss.data[0]/cnt, Total_KL_loss.data[0]/cnt, Total_sentiment_loss.data[0]/cnt))
     
-    # print('\n')
     size = len(eval_iter.dataset)
-    accuracy = float(100.0 * (1.0 - float(senti_corrects)/size))
+    # accuracy = float(100.0 * (1.0 - float(senti_corrects)/size))
+    accuracy = float(100.0 * (float(senti_corrects)/size))
     print('Evaluation acc: {:.4f}%({}/{}) \n'.format(accuracy, senti_corrects, size))
 
     if accuracy > Best_acc or val_bleu.avg > Best_BLEU or val_wmd.avg < Best_WMD: 

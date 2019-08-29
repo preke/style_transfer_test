@@ -35,9 +35,9 @@ GLOVE_PATH        = '../data/glove.6B.300d.txt'
 mask_amazon_train = '../data/amazon/train.mask'
 mask_amazon_test  = '../data/amazon/test.mask'
 
-mask_yelp_train = '../data/yelp/train.mask'
-mask_yelp_test  = '../data/yelp/test.mask'
-mask_yelp_ref  = '../data/yelp/reference.mask'
+mask_yelp_train   = '../data/yelp/train.mask'
+mask_yelp_test    = '../data/yelp/test.mask'
+mask_yelp_ref     = '../data/yelp/reference.mask'
 
 
 parser = argparse.ArgumentParser(description='')
@@ -154,7 +154,6 @@ vae_model = SentenceVAE(
     args                = args)
 
 vae_model = vae_model.cuda()
-# args.snapshot = './saved_model/epoch_24_batch_12743_.pt'
 if args.snapshot is not None:
     logger.info('Load model from' + args.snapshot)
     vae_model.load_state_dict(torch.load(args.snapshot))
