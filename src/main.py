@@ -91,8 +91,8 @@ args.save_best     = True
 
 # Load data
 logger.info('Loading data begin...')
-text_field, label_field, train_data, train_iter, dev_data, dev_iter, test_data, test_iter = load_data(mask_yelp_train, mask_yelp_test, mask_yelp_ref, args)
-text_field.build_vocab(train_data, dev_data, test_data, min_freq=5)
+text_field, label_field, train_data, train_iter, eval_data, eval_iter, test_data, test_iter = load_data(mask_yelp_train, mask_yelp_test, mask_yelp_ref, args)
+text_field.build_vocab(train_data, eval_data, test_data, min_freq=5)
 label_field.build_vocab(train_data)
 logger.info('Length of vocab is: ' + str(len(text_field.vocab)))
 
@@ -125,7 +125,7 @@ if args.cnn_snapshot is not None:
 else:
     logger.info('Train CNN classifier begin...')
     try:
-        train_cnn(train_iter=train_iter, dev_iter=dev_iter, model=cnn, args=args)
+        train_cnn(train_iter=train_iter, eval_iter=eval_iter, model=cnn, args=args)
     except KeyboardInterrupt:
         print(traceback.print_exc())
         print('\n' + '-' * 89)
@@ -159,7 +159,7 @@ if args.snapshot is not None:
     vae_model.load_state_dict(torch.load(args.snapshot))
     vae_model = vae_model.cuda()
     eval_vae(model                = vae_model,
-             eval_iter            = dev_iter, 
+             eval_iter            = eval_iter, 
              args                 = args, 
              step                 = 0, 
              cur_epoch            = 0,
@@ -170,7 +170,7 @@ else:
     logger.info('Train model begin...')
     try:
         # cnn.eval()
-        train_vae(train_iter=train_iter, eval_iter=dev_iter, model=vae_model, args=args, sentiment_classifier=cnn)
+        train_vae(train_iter=train_iter, eval_iter=eval_iter, model=vae_model, args=args, sentiment_classifier=cnn)
     except KeyboardInterrupt:
         print(traceback.print_exc())
         print('\n' + '-' * 89)

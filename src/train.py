@@ -91,13 +91,16 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
         pred_list = []
         target_list = []
         for i in arg_max_logp:
+            mask_sample_ = [args.index_2_word[int(l)] for l in mask_sample[k]]
             target_ = [args.index_2_word[int(l)] for l in target[k]]
             pred    = [args.index_2_word[int(j)] for j in i]
             pred_list.append(pred)
             target_list.append(target_)
-            writer.write(' '.join(target_))
-            writer.write('\n=============\n')
+            writer.write(' '.join(mask_sample_))
+            writer.write('\n.................\n')
             writer.write(' '.join(pred))
+            writer.write('\n=============\n')
+            writer.write(' '.join(target_))
             writer.write('\n************\n\n')
             k = k + 1
             val_wmd.update(w2v_model.wmdistance(pred, target_), 1)
