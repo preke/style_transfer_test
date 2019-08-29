@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 from utils import preprocess_write, get_pretrained_word_embed, preprocess_pos_neg, get_pos_neg_rep
 from dataload import load_data, load_pos_neg_data
 from model import SentenceVAE, CNN_Text
-from train import train_vae, train_cnn, eval_vae
+from train import train_vae, train_cnn, eval_vae, test_vae
 
 
 # paths
@@ -134,6 +134,8 @@ else:
 
 # Build Sentence_VAE model and train
 
+
+
 logger.info('Build VAE model...')
 vae_model = SentenceVAE(
     vocab_size          = args.vocab_size,
@@ -158,13 +160,12 @@ if args.snapshot is not None:
     logger.info('Load model from' + args.snapshot)
     vae_model.load_state_dict(torch.load(args.snapshot))
     vae_model = vae_model.cuda()
-    eval_vae(model                = vae_model,
-             eval_iter            = eval_iter, 
-             args                 = args, 
-             step                 = 0, 
-             cur_epoch            = 0,
-             iteration            = 0, 
-             sentiment_classifier = cnn)
+    w2v_model = Word2Vec.load("yelp_word2vec.model")
+    test_vae(model                = vae_model,
+             test_iter            = test_iter,
+             args                 = args,
+             sentiment_classifier = cnn,
+             w2v_model            = w2v_model)
 
 else:
     logger.info('Train model begin...')

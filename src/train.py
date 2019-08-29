@@ -154,6 +154,84 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
 
 
 
+def test_vae(model, test_iter, args, sentiment_classifier, w2v_model):
+    '''
+        Transfer the sentiment to show the performance
+        HUMAN REFERENCE
+    '''
+    model.eval()
+    
+    cnt            = 0
+    senti_corrects = 0
+    writer         = open('res/test_yelp_vae_.txt', 'w')
+    test_bleu = AverageMeter()
+    test_wmd  = AverageMeter()
+    for batch in test_iter:
+        cnt += 1    
+        mask_sample         = batch.mask_text[0]
+        mask_feature        = Variable(mask_sample)
+        length              = batch.mask_text[1]
+        length              = torch.add(length, -1)
+        mask_input          = mask_feature[:, :-1]
+        batch_size          = len(mask_sample)
+        target              = batch.target[0]
+        label               = batch.label
+        
+        logp, mean, logv, z = model(mask_input, length, mask_input, True)
+        # logp = torch.argmax(logp, dim=2)
+        logp = gumbel_softmax_sample(logp, temp)
+        arg_max_logp = torch.argmax(logp, dim=2)
+
+        k = 0 
+        pred_list = []
+        target_list = []
+        for i in arg_max_logp:
+            mask_sample_ = [args.index_2_word[int(l)] for l in mask_sample[k]]
+            target_ = [args.index_2_word[int(l)] for l in target[k]]
+            pred    = [args.index_2_word[int(j)] for j in i]
+            pred_list.append(pred)
+            target_list.append(target_)
+            writer.write(' '.join(mask_sample_))
+            writer.write('\n.................\n')
+            writer.write(' '.join(pred))
+            writer.write('\n=============\n')
+            writer.write(' '.join(target_))
+            writer.write('\n************\n\n')
+            k = k + 1
+            test_wmd.update(w2v_model.wmdistance(pred, target_), 1)
+        
+        bleu_value = get_bleu(pred_list, target_list)
+        test_bleu.update(bleu_value, 1)
+
+        sentiment      = sentiment_classifier(arg_max_logp)
+        sentiment_loss = F.cross_entropy(sentiment, label)
+        loss           = (NLL_loss + KL_weight * KL_loss + sentiment_loss)/batch_size
+        
+        Total_loss           += float(loss)
+        Total_NLL_loss       += float(NLL_loss)/batch_size
+        Total_KL_loss        += float(KL_loss)/batch_size
+        Total_sentiment_loss += float(sentiment_loss)/batch_size
+        
+        # convert the label of transfered sentences
+        senti_corrects += (torch.max(sentiment, 1)
+                     [1].view(label.size()).data == label.data).sum()
+
+    writer.close()    
+    print('AVG TEST BLEU_score is:%s\n'%(str(test_bleu.avg)))
+    print('AVG TEST WMD_score is:%s\n'%(str(test_wmd.avg)))
+    print("Valid: Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, Senti-Loss %9.4f"
+                %(Total_loss.data[0]/cnt, Total_NLL_loss.data[0]/cnt, Total_KL_loss.data[0]/cnt, Total_sentiment_loss.data[0]/cnt))
+    
+    size = len(test_iter.dataset)
+    # accuracy = float(100.0 * (1.0 - float(senti_corrects)/size))
+    accuracy = float(100.0 * (float(senti_corrects)/size))
+    print('TEST acc: {:.4f}%({}/{}) \n'.format(accuracy, senti_corrects, size))
+
+
+
+
+
+
 
 def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
     save_dir = "../model/"

@@ -67,6 +67,11 @@ class SentenceVAE(nn.Module):
 
 
     def encoder(self, input_sequence, sorted_lengths, batch_size):
+        '''
+        ignore the pos and neg, because they are both set to the same random vectors;
+        only in decoding, they would be replaced with corresponding presentation
+        '''
+
         input_embedding = self.embedding(input_sequence)
         packed_input = rnn_utils.pack_padded_sequence(input_embedding, sorted_lengths.data.tolist(), batch_first=True)
         _, hidden = self.encoder_rnn(packed_input)
@@ -88,7 +93,7 @@ class SentenceVAE(nn.Module):
         
         return mean, logv, z
 
-    def decoder(self, z, batch_size, sorted_idx, sorted_lengths, decoder_input, is_train):
+    def decoder(self, z, batch_size, sorted_idx, sorted_lengths, decoder_input, is_test):
         hidden = self.latent2hidden(z)
         if self.bidirectional or self.num_layers > 1:
             # unflatten hidden state
@@ -99,7 +104,7 @@ class SentenceVAE(nn.Module):
         hidden = hidden - hidden
 
         input_embedding = self.embedding(decoder_input)
-        input_embedding = self.mask_to_sentiment(decoder_input, input_embedding, is_train)
+        input_embedding = self.mask_to_sentiment(decoder_input, input_embedding, is_test)
         input_embedding = input_embedding.cuda()
         # decoder input
         input_embedding = self.embedding_dropout(input_embedding)
@@ -123,21 +128,21 @@ class SentenceVAE(nn.Module):
         
 
 
-    def mask_to_sentiment(self, input_sequence, input_embedding, is_train):
+    def mask_to_sentiment(self, input_sequence, input_embedding, is_test):
         for i in range(input_sequence.size()[0]):
             for j in range(input_sequence.size()[1]):
                 if self.args.index_2_word[input_sequence[i, j]] == 'pos':
                     input_embedding[i, j, :] = self.args.pos_rep
-                    # if is_train:
-                    #     input_embedding[i, j, :] = self.args.pos_rep
-                    # else:
-                    #     input_embedding[i, j, :] = self.args.neg_rep
+                    if not is_test:
+                        input_embedding[i, j, :] = self.args.pos_rep
+                    else:
+                        input_embedding[i, j, :] = self.args.neg_rep
                 if self.args.index_2_word[input_sequence[i, j]] == 'neg':
                     input_embedding[i, j, :] = self.args.neg_rep
-                    # if is_train:
-                    #     input_embedding[i, j, :] = self.args.neg_rep
-                    # else:
-                    #     input_embedding[i, j, :] = self.args.pos_rep
+                    if not is_test:
+                        input_embedding[i, j, :] = self.args.neg_rep
+                    else:
+                        input_embedding[i, j, :] = self.args.pos_rep
         input_embedding = Variable(input_embedding)
         return input_embedding
 
@@ -149,7 +154,7 @@ class SentenceVAE(nn.Module):
 
         return sample
 
-    def forward(self, input_sequence, length, decoder_input, is_train=True):
+    def forward(self, input_sequence, length, decoder_input, is_test=False):
 
         batch_size = input_sequence.size(0)
         sorted_lengths, sorted_idx = torch.sort(length, descending=True)
@@ -162,7 +167,7 @@ class SentenceVAE(nn.Module):
         mean, logv, z = self.encoder(input_sequence, sorted_lengths, batch_size)
 
         # DECODER
-        logp = self.decoder(z, batch_size, sorted_idx, sorted_lengths, decoder_input, is_train)
+        logp = self.decoder(z, batch_size, sorted_idx, sorted_lengths, decoder_input, is_test)
 
         return logp, mean, logv, z
 
@@ -191,7 +196,6 @@ class SentenceVAE(nn.Module):
 
         t = 0
         while(t < self.max_sequence_length and len(running_seqs)>0):
-
             if t == 0:
                 input_sequence = to_var(torch.Tensor(batch_size).fill_(self.sos_idx).long())
 
