@@ -115,7 +115,7 @@ print(type(args.pretrained_weight))
 args.pos_rep, args.neg_rep = get_pos_neg_rep(args.word_2_index, args.pretrained_weight)
 
 ## Build CNN sentiment classifier
-args.cnn_snapshot = './cnn/yelp.pt'
+# args.cnn_snapshot = './cnn/yelp.pt'
 # args.cnn_snapshot = './cnn/test_best_steps_900.pt'
 cnn = model.CNN_Text(args)
 if args.cnn_snapshot is not None:
@@ -125,7 +125,7 @@ if args.cnn_snapshot is not None:
 else:
     logger.info('Train CNN classifier begin...')
     try:
-        train_cnn(train_iter=train_iter, eval_iter=eval_iter, model=cnn, args=args)
+        train_cnn(train_iter=train_iter, eval_iter=test_iter, model=cnn, args=args)
     except KeyboardInterrupt:
         print(traceback.print_exc())
         print('\n' + '-' * 89)

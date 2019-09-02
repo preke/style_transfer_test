@@ -429,7 +429,7 @@ def eval_cnn(data_iter, model, args):
     model.eval()
     corrects, avg_loss = 0, 0
     for batch in data_iter:
-        feature, target = batch.text[0], batch.label
+        feature, target = batch.target[0], batch.label
         # feature.data.t_(), target.data.sub_(1)  # batch first, index align
         # if args.cuda:
         #     feature, target = feature.cuda(), target.cuda()
