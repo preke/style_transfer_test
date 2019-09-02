@@ -35,7 +35,7 @@ GLOVE_PATH        = '../data/glove.6B.300d.txt'
 mask_amazon_train = '../data/amazon/train.mask'
 mask_amazon_test  = '../data/amazon/test.mask'
 
-mask_yelp_train   = '../data/yelp/new_train.mask'
+mask_yelp_train   = '../data/yelp/reference.mask'
 mask_yelp_test    = '../data/yelp/new_test.mask'
 mask_yelp_ref     = '../data/yelp/reference.mask'
 
@@ -176,9 +176,6 @@ else:
         print(traceback.print_exc())
         print('\n' + '-' * 89)
         print('Exiting from training early')
-
-
-
 
 
 

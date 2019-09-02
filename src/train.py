@@ -462,10 +462,6 @@ def save_cnn(model, save_dir, save_prefix, steps):
 
 
 
-
-
-
-
 def model_perplexity(model, src, src_test, trg, trg_test, config, loss_criterion, src_valid=None, trg_valid=None, verbose=False):
     """Compute model perplexity."""
     # Get source minibatch

@@ -65,7 +65,6 @@ class SentenceVAE(nn.Module):
 
 
 
-
     def encoder(self, input_sequence, sorted_lengths, batch_size):
         '''
         ignore the pos and neg, because they are both set to the same random vectors;
