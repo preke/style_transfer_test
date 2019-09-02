@@ -160,12 +160,16 @@ if args.snapshot is not None:
     logger.info('Load model from' + args.snapshot)
     vae_model.load_state_dict(torch.load(args.snapshot))
     vae_model = vae_model.cuda()
-    w2v_model = Word2Vec.load("yelp_word2vec.model")
-    test_vae(model                = vae_model,
-             test_iter            = test_iter,
-             args                 = args,
-             sentiment_classifier = cnn,
-             w2v_model            = w2v_model)
+
+
+    train_vae(train_iter=test_iter, eval_iter=test_iter, model=vae_model, args=args, sentiment_classifier=cnn)
+    
+    # w2v_model = Word2Vec.load("yelp_word2vec.model")
+    # test_vae(model                = vae_model,
+    #          test_iter            = test_iter,
+    #          args                 = args,
+    #          sentiment_classifier = cnn,
+    #          w2v_model            = w2v_model)
 
 else:
     logger.info('Train model begin...')
