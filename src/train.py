@@ -76,7 +76,10 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
         length              = torch.add(length, -1)
         mask_input          = mask_feature[:, :-1]
         batch_size          = len(mask_sample)
-        target              = batch.target[0]
+        
+        # target              = batch.target[0]
+        
+        target              = batch.text[0]
         label               = batch.label
         
         logp, mean, logv, z = model(mask_input, length, mask_input, False)
@@ -262,11 +265,11 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
             
             # Forward pass
             
-            # sample       = batch.text[0]
-            # length       = batch.text[1]
+            sample       = batch.text[0]
+            length       = batch.text[1]
 
-            sample       = batch.target[0]
-            length       = batch.target[1]
+            # sample       = batch.target[0]
+            # length       = batch.target[1]
 
             length       = torch.add(length, -1)
             batch_size   = len(sample)
