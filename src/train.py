@@ -299,6 +299,7 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
 
             tracker['ELBO'] = torch.cat((tracker['ELBO'], loss.data.unsqueeze(0)))
             if iteration % args.print_every == 0:
+                print('In %d epoch\n' %epoch)
                 print("Train: Batch %04d, Loss %9.4f, NLL-Loss %9.4f, KL-Loss %9.4f, KL-Weight %6.3f, Senti-Loss: %9.4f"
                 %(iteration, loss.data[0], NLL_loss.data[0]/batch_size, KL_loss.data[0]/batch_size, KL_weight, sentiment_loss.data[0]/batch_size))
 
