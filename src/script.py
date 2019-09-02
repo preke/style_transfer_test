@@ -180,8 +180,8 @@ from gensim.models import Word2Vec
 # fopen.close()
 
 
-in_path = '../data/yelp/train.mask'
-out_path = '../data/yelp/new_train.mask'
+in_path = '../data/yelp/test.mask'
+out_path = '../data/yelp/new_test.mask'
 
 writer = open(out_path, 'w')
 with open(in_path, 'r') as reader:
