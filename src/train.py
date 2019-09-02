@@ -76,7 +76,7 @@ def eval_vae(model, eval_iter, args, step, cur_epoch, iteration, sentiment_class
         length              = torch.add(length, -1)
         mask_input          = mask_feature[:, :-1]
         batch_size          = len(mask_sample)
-        target              = batch.text[0]
+        target              = batch.target[0]
         label               = batch.label
         
         logp, mean, logv, z = model(mask_input, length, mask_input, False)
