@@ -115,7 +115,7 @@ print(type(args.pretrained_weight))
 args.pos_rep, args.neg_rep = get_pos_neg_rep(args.word_2_index, args.pretrained_weight)
 
 ## Build CNN sentiment classifier
-# args.cnn_snapshot = './cnn/yelp.pt'
+args.cnn_snapshot = './cnn/yelp.pt'
 # args.cnn_snapshot = './cnn/test_best_steps_900.pt'
 cnn = model.CNN_Text(args)
 if args.cnn_snapshot is not None:
@@ -136,46 +136,46 @@ else:
 
 
 
-# logger.info('Build VAE model...')
-# vae_model = SentenceVAE(
-#     vocab_size          = args.vocab_size,
-#     sos_idx             = args.word_2_index['<SOS>'],
-#     eos_idx             = args.word_2_index['<EOS>'],
-#     pad_idx             = args.word_2_index['<PAD>'],
-#     unk_idx             = args.word_2_index['<UNK>'],
-#     max_sequence_length = args.max_length,
-#     embedding_size      = args.embed_dim,
-#     rnn_type            = args.rnn_type,
-#     hidden_size         = args.hidden_dim,
-#     word_dropout        = args.word_dropout,
-#     embedding_dropout   = args.embedding_dropout,
-#     latent_size         = args.latent_size,
-#     num_layers          = args.num_layers,
-#     bidirectional       = args.bidirectional,
-#     pre_embedding       = args.pretrained_weight,
-#     args                = args)
+logger.info('Build VAE model...')
+vae_model = SentenceVAE(
+    vocab_size          = args.vocab_size,
+    sos_idx             = args.word_2_index['<SOS>'],
+    eos_idx             = args.word_2_index['<EOS>'],
+    pad_idx             = args.word_2_index['<PAD>'],
+    unk_idx             = args.word_2_index['<UNK>'],
+    max_sequence_length = args.max_length,
+    embedding_size      = args.embed_dim,
+    rnn_type            = args.rnn_type,
+    hidden_size         = args.hidden_dim,
+    word_dropout        = args.word_dropout,
+    embedding_dropout   = args.embedding_dropout,
+    latent_size         = args.latent_size,
+    num_layers          = args.num_layers,
+    bidirectional       = args.bidirectional,
+    pre_embedding       = args.pretrained_weight,
+    args                = args)
 
-# vae_model = vae_model.cuda()
-# if args.snapshot is not None:
-#     logger.info('Load model from' + args.snapshot)
-#     vae_model.load_state_dict(torch.load(args.snapshot))
-#     vae_model = vae_model.cuda()
-#     w2v_model = Word2Vec.load("yelp_word2vec.model")
-#     test_vae(model                = vae_model,
-#              test_iter            = test_iter,
-#              args                 = args,
-#              sentiment_classifier = cnn,
-#              w2v_model            = w2v_model)
+vae_model = vae_model.cuda()
+if args.snapshot is not None:
+    logger.info('Load model from' + args.snapshot)
+    vae_model.load_state_dict(torch.load(args.snapshot))
+    vae_model = vae_model.cuda()
+    w2v_model = Word2Vec.load("yelp_word2vec.model")
+    test_vae(model                = vae_model,
+             test_iter            = test_iter,
+             args                 = args,
+             sentiment_classifier = cnn,
+             w2v_model            = w2v_model)
 
-# else:
-#     logger.info('Train model begin...')
-#     try:
-#         # cnn.eval()
-#         train_vae(train_iter=train_iter, eval_iter=eval_iter, model=vae_model, args=args, sentiment_classifier=cnn)
-#     except KeyboardInterrupt:
-#         print(traceback.print_exc())
-#         print('\n' + '-' * 89)
-#         print('Exiting from training early')
+else:
+    logger.info('Train model begin...')
+    try:
+        # cnn.eval()
+        train_vae(train_iter=train_iter, eval_iter=eval_iter, model=vae_model, args=args, sentiment_classifier=cnn)
+    except KeyboardInterrupt:
+        print(traceback.print_exc())
+        print('\n' + '-' * 89)
+        print('Exiting from training early')
 
 
 
