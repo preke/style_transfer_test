@@ -37,7 +37,7 @@ mask_amazon_test  = '../data/amazon/test.mask'
 
 mask_yelp_train   = '../data/yelp/new_train.mask'
 mask_yelp_test    = '../data/yelp/new_test.mask'
-mask_yelp_ref     = '../data/yelp/new_reference.mask'
+mask_yelp_ref     = '../data/yelp/reference.mask'
 
 
 parser = argparse.ArgumentParser(description='')
