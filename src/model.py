@@ -132,13 +132,13 @@ class SentenceVAE(nn.Module):
         for i in range(input_sequence.size()[0]):
             for j in range(input_sequence.size()[1]):
                 if self.args.index_2_word[input_sequence[i, j]] == 'pos':
-                    input_embedding[i, j, :] = self.args.pos_rep
+                    # input_embedding[i, j, :] = self.args.pos_rep
                     if not is_test:
                         input_embedding[i, j, :] = self.args.pos_rep
                     else:
                         input_embedding[i, j, :] = self.args.neg_rep
                 if self.args.index_2_word[input_sequence[i, j]] == 'neg':
-                    input_embedding[i, j, :] = self.args.neg_rep
+                    # input_embedding[i, j, :] = self.args.neg_rep
                     if not is_test:
                         input_embedding[i, j, :] = self.args.neg_rep
                     else:

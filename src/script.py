@@ -166,19 +166,32 @@ from gensim.models import Word2Vec
 
 
 
-file = '../data/yelp/reference.tsv'
-fopen = open('../data/yelp/ref.data', 'w')
-with open(file, 'r') as reader:
+# file = '../data/yelp/reference.tsv'
+# fopen = open('../data/yelp/ref.data', 'w')
+# with open(file, 'r') as reader:
+#     for line in reader:
+#         list_ = line.split('\t')
+#         fopen.write(list_[0] + '\t' + list_[2])
+#         if list_[0] == '1':
+#             fopen.write('0' + '\t' + list_[1] + '\n')
+#         if list_[0] == '0':
+#             fopen.write('1' + '\t' + list_[1] + '\n')    
+
+# fopen.close()
+
+
+in_path = '../data/yelp/train.mask'
+out_path = '../data/yelp/new_train.mask'
+
+writer = open(out_path, 'w')
+with open(in_path, 'r') as reader:
     for line in reader:
-        list_ = line.split('\t')
-        fopen.write(list_[0] + '\t' + list_[2])
-        if list_[0] == '1':
-            fopen.write('0' + '\t' + list_[1] + '\n')
-        if list_[0] == '0':
-            fopen.write('1' + '\t' + list_[1] + '\n')    
+    	label, original, masked = line.split('\t')
+    	if masked[-1] == '\n':
+    		masked = masked[:-1]
+    	writer.write(label + '\t' + masked + '\t' + original + '\n')
 
-fopen.close()
-
+writer.close()
 
 
 
