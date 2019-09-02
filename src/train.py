@@ -261,8 +261,13 @@ def train_vae(train_iter, eval_iter, model, args, sentiment_classifier):
         for batch in train_iter:    
             
             # Forward pass
-            sample       = batch.text[0]
-            length       = batch.text[1]
+            
+            # sample       = batch.text[0]
+            # length       = batch.text[1]
+
+            sample       = batch.target[0]
+            length       = batch.target[1]
+
             length       = torch.add(length, -1)
             batch_size   = len(sample)
             feature      = Variable(sample)
