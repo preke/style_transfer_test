@@ -10,7 +10,7 @@ import datetime
 import time
 import traceback
 import model
-from gensim.models import Word2Vec
+from gensim.models import Word2Vechea
 
 
 # logging
@@ -35,9 +35,9 @@ GLOVE_PATH        = '../data/glove.6B.300d.txt'
 mask_amazon_train = '../data/amazon/train.mask'
 mask_amazon_test  = '../data/amazon/test.mask'
 
-mask_yelp_train   = '../data/yelp/train.mask'
-mask_yelp_test    = '../data/yelp/test.mask'
-mask_yelp_ref     = '../data/yelp/reference.mask'
+mask_yelp_train   = '../data/yelp/new_train.mask'
+mask_yelp_test    = '../data/yelp/new_test.mask'
+mask_yelp_ref     = '../data/yelp/new_reference.mask'
 
 
 parser = argparse.ArgumentParser(description='')
