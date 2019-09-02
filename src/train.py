@@ -375,7 +375,7 @@ def loss_fn(logp, target, length, mean, logv, anneal_function, step, k, x0, pad_
 
 
 
-def train_cnn(train_iter, dev_iter, model, args):
+def train_cnn(train_iter, eval_iter, model, args):
     if args.cuda:
         model.cuda()
     parameters = list(filter(lambda p: p.requires_grad, model.parameters()))
@@ -410,7 +410,7 @@ def train_cnn(train_iter, dev_iter, model, args):
                                                                              corrects,
                                                                              batch.batch_size))
             if steps % args.test_interval == 0 and steps != 0:
-                acc, avg_loss = eval_cnn(dev_iter, model, args)
+                acc, avg_loss = eval_cnn(eval_iter, model, args)
                 loss_list.append(avg_loss)
                 if avg_loss < best_loss:
                     best_loss = avg_loss
